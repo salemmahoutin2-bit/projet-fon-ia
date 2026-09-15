@@ -1,0 +1,24 @@
+{
+  "name": "projet-fon-ia",
+  "version": "1.0.0",
+  "description": "IA en Fon - Interactive keyboard and chat application",
+  "main": "index.html",
+  "scripts": {
+    "dev": "npm run build && echo 'Open index.html in your browser'",
+    "build": "esbuild src/analytics.js --bundle --outfile=analytics.js --format=iife"
+  },
+  "keywords": [
+    "fon",
+    "ia",
+    "chat",
+    "keyboard"
+  ],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@vercel/analytics": "^2.0.1"
+  },
+  "devDependencies": {
+    "esbuild": "^0.28.2"
+  }
+}

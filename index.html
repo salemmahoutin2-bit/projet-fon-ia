@@ -1,14 +1,33 @@
-<!DOCTYPE html> <html lang="fr"> <head> <meta charset="UTF-8"> <meta
-name="viewport" content="width=device-width, initial-scale=1.0"> <title>IA
-en Fon</title> <link rel="stylesheet" href="style.css"> </head> <body>
-<h1>Bienvenue – Kú dò wa (Bienvenue en Fon)</h1>
-<!– Zone du clavier Fon –> <section id="clavier"> <h2>Clavier
-Fon</h2> <div id="touches"></div> <textarea id="texte-fon" rows="4"
-placeholder="Clique sur les touches pour écrire..."> </textarea>
-</section>
-<!– Zone du chat IA –> <section id="chat"> <h2>Parler avec
-l’IA</h2> <div id="messages"></div> <div id="zone-envoi"> <input
-type="text" id="saisie" placeholder="Écris ton message..."> <button
-id="btn-envoyer">Envoyer</button> </div> </section>
-<script src="clavier.js"></script> <script src="ia.js"></script> </body>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>IA en Fon</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <h1>Bienvenue – Kú dò wa (Bienvenue en Fon)</h1>
+    
+    <!-- Zone du clavier Fon -->
+    <section id="clavier">
+        <h2>Clavier Fon</h2>
+        <div id="touches"></div>
+        <textarea id="texte-fon" rows="4" placeholder="Clique sur les touches pour écrire..."></textarea>
+    </section>
+    
+    <!-- Zone du chat IA -->
+    <section id="chat">
+        <h2>Parler avec l'IA</h2>
+        <div id="messages"></div>
+        <div id="zone-envoi">
+            <input type="text" id="saisie" placeholder="Écris ton message...">
+            <button id="btn-envoyer">Envoyer</button>
+        </div>
+    </section>
+    
+    <script src="clavier.js"></script>
+    <script src="ia.js"></script>
+    <script src="analytics.js"></script>
+</body>
 </html>
