@@ -1,14 +1,109 @@
-<!DOCTYPE html> <html lang="fr"> <head> <meta charset="UTF-8"> <meta
-name="viewport" content="width=device-width, initial-scale=1.0"> <title>IA
-en Fon</title> <link rel="stylesheet" href="style.css"> </head> <body>
-<h1>Bienvenue – Kú dò wa (Bienvenue en Fon)</h1>
-<!– Zone du clavier Fon –> <section id="clavier"> <h2>Clavier
-Fon</h2> <div id="touches"></div> <textarea id="texte-fon" rows="4"
-placeholder="Clique sur les touches pour écrire..."> </textarea>
-</section>
-<!– Zone du chat IA –> <section id="chat"> <h2>Parler avec
-l’IA</h2> <div id="messages"></div> <div id="zone-envoi"> <input
-type="text" id="saisie" placeholder="Écris ton message..."> <button
-id="btn-envoyer">Envoyer</button> </div> </section>
-<script src="clavier.js"></script> <script src="ia.js"></script> </body>
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>IA en Fon -- Fon gbe nu</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+  <!-- En-tête de la page -->
+  <header>
+    <div id="header-content">
+      <h1>&#127758; IA en Fon</h1>
+      <p id="sous-titre">Parle avec l’IA dans ta langue natale</p>
+    </div>
+    <div id="langue-switch">
+      <button class="btn-langue active" data-lang="fr">Français</button>
+      <button class="btn-langue" data-lang="fon">Fon</button>
+    </div>
+  </header>
+
+  <main>
+
+    <!-- ===== SECTION CLAVIER FON ===== -->
+    <section id="section-clavier">
+      <h2>&#9000; Clavier Fon</h2>
+      <p class="aide">Clique sur les lettres pour écrire en Fon</p>
+
+      <!-- Rangées du clavier -->
+      <div id="clavier-container">
+        <div class="rangee" id="rangee-consonnes"></div>
+        <div class="rangee" id="rangee-voyelles"></div>
+        <div class="rangee" id="rangee-tons"></div>
+        <div class="rangee" id="rangee-actions"></div>
+      </div>
+
+      <!-- Zone de texte Fon -->
+      <textarea
+        id="texte-fon"
+        rows="3"
+        placeholder="Ton texte en Fon apparaît ici..."
+        spellcheck="false"
+      ></textarea>
+
+      <!-- Boutons d’action sur le texte -->
+      <div id="actions-texte">
+        <button id="btn-copier" class="btn-action">
+          Copier le texte
+        </button>
+        <button id="btn-effacer-tout" class="btn-action danger">
+          Tout effacer
+        </button>
+        <button id="btn-envoyer-ia" class="btn-action primary">
+          Envoyer à l’IA
+        </button>
+      </div>
+    </section>
+
+    <!-- ===== SECTION CHAT IA ===== -->
+    <section id="section-chat">
+      <h2>&#129302; Conversation avec l’IA</h2>
+
+      <!-- Affichage des messages -->
+      <div id="messages" role="log" aria-live="polite">
+        <!-- Message de bienvenue -->
+        <div class="message msg-ia">
+          <span class="avatar-ia">IA</span>
+          <div class="bulle">
+            Bonjour ! Je suis ton assistant IA. Je peux communiquer
+            en Fon et en Français. Utilise le clavier ci-dessus
+            pour écrire en Fon, ou écris directement ici.
+          </div>
+        </div>
+      </div>
+
+      <!-- Zone de saisie manuelle -->
+      <div id="zone-saisie">
+        <textarea
+          id="saisie-message"
+          rows="2"
+          placeholder="Écris ton message ici (Fon ou Français)..."
+          spellcheck="false"
+        ></textarea>
+        <button id="btn-envoyer" aria-label="Envoyer">
+          &#10148;
+        </button>
+      </div>
+
+      <!-- Indicateur de chargement -->
+      <div id="chargement" hidden>
+        <span class="point"></span>
+        <span class="point"></span>
+        <span class="point"></span>
+      </div>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>Projet IA & Clavier Fon -- Salem MAHOUTIN -- ENS Natitingou</p>
+  </footer>
+
+  <!-- Scripts (ordre important) -->
+  <script src="clavier.js"></script>
+  <script src="ia.js"></script>
+
+</body>
 </html>
