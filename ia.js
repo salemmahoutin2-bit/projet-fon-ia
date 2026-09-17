@@ -1,12 +1,10 @@
 /* ================================================
-   INTERFACE IA ( GEMINI ) -- PROJET FON
+   INTERFACE IA ( RELAIS VERCEL ) -- PROJET FON
    Fichier : ia.js
 ================================================ */
 
-// CONFIGURATION
+// CONFIGURATION (La clé API a été retirée d'ici pour être mise dans Vercel)
 const CONFIG = {
-  CLE_API: 'AQ.Ab8RN6IWKtxo_KnPyisxji6cP9jcyQuMLRZF-usAs34hPphGAA',
-  MODELE: 'gemini-1.5-flash',
   SYSTEME: `Tu es un assistant IA spécialisé pour les locuteurs de la langue Fon (Bénin, Afrique de l'Ouest).
 Règles importantes :
 - Si l'utilisateur écrit en Fon, réponds principalement en Fon, avec une brève traduction en français entre parenthèses.
@@ -30,7 +28,6 @@ function afficherMessage(texte, auteur) {
   divMessage.className = 'message ' + (auteur === 'user' ? 'msg-user' : 'msg-ia');
 
   if (auteur === 'ia') {
-    // Avatar de l'IA
     const avatar = document.createElement('span');
     avatar.className = 'avatar-ia';
     avatar.textContent = 'IA';
@@ -39,13 +36,11 @@ function afficherMessage(texte, auteur) {
 
   const bulle = document.createElement('div');
   bulle.className = 'bulle';
-  // Supporter les sauts de ligne dans la réponse
   bulle.innerHTML = texte.replace(/\n/g, '<br>');
 
   divMessage.appendChild(bulle);
   zoneMessages.appendChild(divMessage);
 
-  // Défiler vers le bas automatiquement
   zoneMessages.scrollTop = zoneMessages.scrollHeight;
 }
 
@@ -56,35 +51,32 @@ function setChargement(actif) {
   if (champSaisie) champSaisie.disabled = actif;
 }
 
-// Fonction principale : envoyer un message
+// Fonction principale : envoyer un message via le serveur Vercel (/api/chat)
 async function envoyerMessage() {
   const texte = champSaisie.value.trim();
 
-  // Vérifier que le message n'est pas vide
   if (!texte) {
     champSaisie.focus();
     return;
   }
 
-  // Afficher le message de l'utilisateur
+  // 1. Afficher le message utilisateur
   afficherMessage(texte, 'user');
   champSaisie.value = '';
   champSaisie.style.height = 'auto';
 
-  // Ajouter à l'historique (Format adapté pour Gemini)
+  // 2. Mettre à jour l'historique
   historique.push({
     role: 'user',
     parts: [{ text: texte }]
   });
 
-  // Activer le chargement
+  // 3. Activer le chargement
   setChargement(true);
 
   try {
-    // URL de l'API Google Gemini 1.5 Flash
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/${CONFIG.MODELE}:generateContent?key=${CONFIG.CLE_API}`;
-
-    const response = await fetch(url, {
+    // 4. Appel au serveur relais interne Vercel (/api/chat.js)
+    const response = await fetch('/api/chat', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'
@@ -97,62 +89,46 @@ async function envoyerMessage() {
       })
     });
 
+    const donnees = await response.json();
+
     if (!response.ok) {
-      const erreurData = await response.json();
-      console.error('Erreur retournée par Google:', erreurData);
-      throw new Error(`Erreur HTTP ${response.status}`);
+      console.error('Erreur Serveur Vercel:', donnees);
+      throw new Error(donnees.error?.message || `Erreur HTTP ${response.status}`);
     }
 
-    const donnees = await response.json();
+    // 5. Extraction de la réponse texte
     const texteIA = donnees.candidates[0].content.parts[0].text;
 
-    // Afficher la réponse
+    // 6. Affichage de la réponse IA
     afficherMessage(texteIA, 'ia');
 
-    // Ajouter la réponse à l'historique
+    // 7. Sauvegarde dans l'historique
     historique.push({
       role: 'model',
       parts: [{ text: texteIA }]
     });
 
-    // Limiter l'historique à 20 messages (10 échanges)
     if (historique.length > 20) {
       historique = historique.slice(-20);
     }
 
   } catch (erreur) {
     console.error('Erreur IA :', erreur);
-
-    let messageErreur = 'Désolée, une erreur est survenue.';
-
-    if (erreur.message.includes('400')) {
-      messageErreur = 'Erreur de requête (400). Vérifiez la configuration de la clé API ou du modèle.';
-    } else if (erreur.message.includes('401') || erreur.message.includes('403')) {
-      messageErreur = 'Clé API non autorisée ou invalide.';
-    } else if (erreur.message.includes('429')) {
-      messageErreur = 'Trop de requêtes. Attends quelques secondes.';
-    } else if (!navigator.onLine) {
-      messageErreur = 'Pas de connexion internet. Vérifie ta connexion.';
-    }
-
-    afficherMessage(messageErreur, 'ia');
-    // Retirer la dernière entrée utilisateur si l'envoi a échoué
+    afficherMessage('Désolée, une erreur est survenue lors de la communication avec le serveur.', 'ia');
     historique.pop();
   }
 
-  // Désactiver le chargement
+  // 8. Désactiver le chargement
   setChargement(false);
   champSaisie.focus();
 }
 
 // Événements
 
-// Clic sur le bouton Envoyer
 if (btnEnvoyer) {
   btnEnvoyer.addEventListener('click', envoyerMessage);
 }
 
-// Touche Entrée pour envoyer (Shift + Entrée = saut de ligne)
 if (champSaisie) {
   champSaisie.addEventListener('keydown', (e) => {
     if (e.key === 'Enter' && !e.shiftKey) {
@@ -161,21 +137,19 @@ if (champSaisie) {
     }
   });
 
-  // Auto-agrandir la zone de saisie selon le contenu
   champSaisie.addEventListener('input', function () {
     this.style.height = 'auto';
     this.style.height = Math.min(this.scrollHeight, 120) + 'px';
   });
 }
 
-// Boutons de langue (header)
+// Boutons de langue
 document.querySelectorAll('.btn-langue').forEach(btn => {
   btn.addEventListener('click', function () {
     document.querySelectorAll('.btn-langue')
       .forEach(b => b.classList.remove('active'));
     this.classList.add('active');
 
-    // Changer le placeholder selon la langue
     const lang = this.dataset.lang;
     if (champSaisie) {
       if (lang === 'fon') {
