@@ -18,6 +18,7 @@ const zoneMessages = document.getElementById('messages');
 const champSaisie = document.getElementById('saisie-message');
 const btnEnvoyer = document.getElementById('btn-envoyer');
 const chargement = document.getElementById('chargement');
+const btnMicro = document.getElementById('btn-micro'); // Bouton microphone
 
 // Historique de la conversation
 let historique = [];
@@ -49,6 +50,7 @@ function setChargement(actif) {
   if (chargement) chargement.hidden = !actif;
   if (btnEnvoyer) btnEnvoyer.disabled = actif;
   if (champSaisie) champSaisie.disabled = actif;
+  if (btnMicro) btnMicro.disabled = actif;
 }
 
 // Fonction principale : envoyer un message via le serveur Vercel (/api/chat)
@@ -121,6 +123,59 @@ async function envoyerMessage() {
   // 8. Désactiver le chargement
   setChargement(false);
   champSaisie.focus();
+}
+
+// ==========================================
+// INTÉGRATION DE LA RECONNAISSANCE VOCALE (STT)
+// ==========================================
+const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+
+if (SpeechRecognition) {
+    const recognition = new SpeechRecognition();
+    recognition.lang = 'fr-FR'; // Langue d'écoute principale (modifiable si besoin)
+    recognition.interimResults = false;
+
+    if (btnMicro) {
+        btnMicro.addEventListener('click', () => {
+            try {
+                recognition.start();
+                btnMicro.style.background = '#e76f51'; // Passe en rouge pour indiquer l'écoute
+                btnMicro.title = "Écoute en cours...";
+            } catch (e) {
+                console.error("Erreur démarrage micro:", e);
+            }
+        });
+    }
+
+    recognition.onresult = function(event) {
+        const texteTranscription = event.results[0][0].transcript;
+        if (champSaisie) {
+            champSaisie.value = texteTranscription;
+            champSaisie.style.height = 'auto';
+            champSaisie.style.height = Math.min(champSaisie.scrollHeight, 120) + 'px';
+        }
+    };
+
+    recognition.onerror = function(event) {
+        console.error("Erreur de reconnaissance vocale :", event.error);
+        reinitialiserBoutonMicro();
+    };
+
+    recognition.onend = function() {
+        reinitialiserBoutonMicro();
+    };
+
+    function reinitialiserBoutonMicro() {
+        if (btnMicro) {
+            btnMicro.style.background = '#d4a373'; // Revient à la couleur normale
+            btnMicro.title = "Parler";
+        }
+    }
+} else {
+    console.log("La reconnaissance vocale n'est pas supportée par ce navigateur.");
+    if (btnMicro) {
+        btnMicro.style.display = 'none'; // Masquer le micro si le navigateur est incompatible
+    }
 }
 
 // Événements
