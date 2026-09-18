@@ -5,12 +5,17 @@
 
 // CONFIGURATION (La clé API a été retirée d'ici pour être mise dans Vercel)
 const CONFIG = {
-  SYSTEME: `Tu es un assistant IA spécialisé pour les locuteurs de la langue Fon (Bénin, Afrique de l'Ouest).
+    SYSTEME_FR: `Tu es un assistant IA spécialisé pour les locuteurs de la langue Fon (Bénin, Afrique de l'Ouest).
 Règles importantes :
 - Si l'utilisateur écrit en Fon, réponds principalement en Fon, avec une brève traduction en français entre parenthèses.
 - Si l'utilisateur écrit en français, réponds en français mais ajoute des mots ou expressions clés en Fon quand c'est utile.
 - Sois chaleureux, patient, et adapte-toi au niveau de l'utilisateur.
-- Tu peux aider pour : traductions, apprentissage du Fon, questions du quotidien, santé, agriculture, éducation.`
+- Tu peux aider pour : traductions, apprentissage du Fon, questions du quotidien, santé, agriculture, éducation.`,
+
+    SYSTEME_FON: `Eyi wɛ nyí alɔgɔtɔ́ fɔngbè tɔn ɖò nyanmɛ. 
+Règles strictes :
+- Réponds UNIQUEMENT et EXCLUSIVEMENT en langue Fon (fɔngbè). Ne rédige aucune phrase en français, sauf si l'utilisateur demande explicitement une traduction.
+- Sois chaleureux, poli, et utilise un vocabulaire correct en Fon.`
 };
 
 // Éléments du DOM
@@ -20,109 +25,118 @@ const btnEnvoyer = document.getElementById('btn-envoyer');
 const chargement = document.getElementById('chargement');
 const btnMicro = document.getElementById('btn-micro'); // Bouton microphone
 
-// Historique de la conversation
-let historique = [];
+// Historique de la conversation (chargé depuis le localStorage si existant)
+let historique = JSON.parse(localStorage.getItem('chat_api_history')) || [];
 
-// Fonction : afficher un message
+// Fonction : afficher un message dans le chat
 function afficherMessage(texte, auteur) {
-  const divMessage = document.createElement('div');
-  divMessage.className = 'message ' + (auteur === 'user' ? 'msg-user' : 'msg-ia');
+    const divMessage = document.createElement('div');
+    divMessage.className = 'message ' + (auteur === 'user' ? 'msg-user' : 'msg-ia');
 
-  if (auteur === 'ia') {
-    const avatar = document.createElement('span');
-    avatar.className = 'avatar-ia';
-    avatar.textContent = 'IA';
-    divMessage.appendChild(avatar);
-  }
+    if (auteur === 'ia') {
+        const avatar = document.createElement('span');
+        avatar.className = 'avatar-ia';
+        avatar.textContent = 'IA';
+        divMessage.appendChild(avatar);
+    }
 
-  const bulle = document.createElement('div');
-  bulle.className = 'bulle';
-  bulle.innerHTML = texte.replace(/\n/g, '<br>');
+    const bulle = document.createElement('div');
+    bulle.className = 'bulle';
+    bulle.innerHTML = texte.replace(/\n/g, '<br>');
 
-  divMessage.appendChild(bulle);
-  zoneMessages.appendChild(divMessage);
+    divMessage.appendChild(bulle);
+    zoneMessages.appendChild(divMessage);
 
-  zoneMessages.scrollTop = zoneMessages.scrollHeight;
+    zoneMessages.scrollTop = zoneMessages.scrollHeight;
 }
 
 // Fonction : afficher / masquer le chargement
 function setChargement(actif) {
-  if (chargement) chargement.hidden = !actif;
-  if (btnEnvoyer) btnEnvoyer.disabled = actif;
-  if (champSaisie) champSaisie.disabled = actif;
-  if (btnMicro) btnMicro.disabled = actif;
+    if (chargement) chargement.hidden = !actif;
+    if (btnEnvoyer) btnEnvoyer.disabled = actif;
+    if (champSaisie) champSaisie.disabled = actif;
+    if (btnMicro) btnMicro.disabled = actif;
 }
 
 // Fonction principale : envoyer un message via le serveur Vercel (/api/chat)
 async function envoyerMessage() {
-  const texte = champSaisie.value.trim();
+    const texte = champSaisie.value.trim();
 
-  if (!texte) {
-    champSaisie.focus();
-    return;
-  }
-
-  // 1. Afficher le message utilisateur
-  afficherMessage(texte, 'user');
-  champSaisie.value = '';
-  champSaisie.style.height = 'auto';
-
-  // 2. Mettre à jour l'historique
-  historique.push({
-    role: 'user',
-    parts: [{ text: texte }]
-  });
-
-  // 3. Activer le chargement
-  setChargement(true);
-
-  try {
-    // 4. Appel au serveur relais interne Vercel (/api/chat.js)
-    const response = await fetch('/api/chat', {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        system_instruction: {
-          parts: [{ text: CONFIG.SYSTEME }]
-        },
-        contents: historique
-      })
-    });
-
-    const donnees = await response.json();
-
-    if (!response.ok) {
-      console.error('Erreur Serveur Vercel:', donnees);
-      throw new Error(donnees.error?.message || `Erreur HTTP ${response.status}`);
+    if (!texte) {
+        champSaisie.focus();
+        return;
     }
 
-    // 5. Extraction de la réponse texte
-    const texteIA = donnees.candidates[0].content.parts[0].text;
+    // Récupérer la langue active actuelle (depuis le bouton actif dans le HTML)
+    const btnLangueActive = document.querySelector('.btn-langue.active');
+    const langActuelle = btnLangueActive ? btnLangueActive.getAttribute('data-lang') : 'fr';
+    
+    // Déterminer la consigne système selon la langue choisie
+    const promptSystemeActuel = langActuelle === 'fon' ? CONFIG.SYSTEME_FON : CONFIG.SYSTEME_FR;
 
-    // 6. Affichage de la réponse IA
-    afficherMessage(texteIA, 'ia');
+    // 1. Afficher le message utilisateur
+    afficherMessage(texte, 'user');
+    champSaisie.value = '';
+    champSaisie.style.height = 'auto';
 
-    // 7. Sauvegarde dans l'historique
+    // 2. Mettre à jour l'historique
     historique.push({
-      role: 'model',
-      parts: [{ text: texteIA }]
+        role: 'user',
+        parts: [{ text: texte }]
     });
 
-    if (historique.length > 20) {
-      historique = historique.slice(-20);
+    // 3. Activer le chargement
+    setChargement(true);
+
+    try {
+        // 4. Appel au serveur relais interne Vercel (/api/chat.js)
+        const response = await fetch('/api/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                system_instruction: {
+                    parts: [{ text: promptSystemeActuel }]
+                },
+                contents: historique
+            })
+        });
+
+        const donnees = await response.json();
+
+        if (!response.ok) {
+            console.error('Erreur Serveur Vercel:', donnees);
+            throw new Error(donnees.error?.message || `Erreur HTTP ${response.status}`);
+        }
+
+        // 5. Extraction de la réponse texte
+        const texteIA = donnees.candidates[0].content.parts[0].text;
+
+        // 6. Affichage de la réponse IA
+        afficherMessage(texteIA, 'ia');
+
+        // 7. Sauvegarde dans l'historique et dans le localStorage
+        historique.push({
+            role: 'model',
+            parts: [{ text: texteIA }]
+        });
+
+        if (historique.length > 20) {
+            historique = historique.slice(-20);
+        }
+
+        localStorage.setItem('chat_api_history', JSON.stringify(historique));
+
+    } catch (erreur) {
+        console.error('Erreur IA :', erreur);
+        afficherMessage("Désolé, une erreur est survenue lors de la communication avec le serveur.", 'ia');
+        historique.pop(); // Retirer le dernier message utilisateur en échec
     }
 
-  } catch (erreur) {
-    console.error('Erreur IA :', erreur);
-    afficherMessage('Désolée, une erreur est survenue lors de la communication avec le serveur.', 'ia');
-    historique.pop();
-  }
-
-  // 8. Désactiver le chargement
-  setChargement(false);
-  champSaisie.focus();
+    // 8. Désactiver le chargement
+    setChargement(false);
+    champSaisie.focus();
 }
 
 // ==========================================
@@ -132,14 +146,14 @@ const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecogni
 
 if (SpeechRecognition) {
     const recognition = new SpeechRecognition();
-    recognition.lang = 'fr-FR'; // Langue d'écoute principale (modifiable si besoin)
+    recognition.lang = 'fr-FR'; 
     recognition.interimResults = false;
 
     if (btnMicro) {
         btnMicro.addEventListener('click', () => {
             try {
                 recognition.start();
-                btnMicro.style.background = '#e76f51'; // Passe en rouge pour indiquer l'écoute
+                btnMicro.style.background = '#e76f51'; 
                 btnMicro.title = "Écoute en cours...";
             } catch (e) {
                 console.error("Erreur démarrage micro:", e);
@@ -167,51 +181,33 @@ if (SpeechRecognition) {
 
     function reinitialiserBoutonMicro() {
         if (btnMicro) {
-            btnMicro.style.background = '#d4a373'; // Revient à la couleur normale
+            btnMicro.style.background = '#d4a373'; 
             btnMicro.title = "Parler";
         }
     }
 } else {
     console.log("La reconnaissance vocale n'est pas supportée par ce navigateur.");
     if (btnMicro) {
-        btnMicro.style.display = 'none'; // Masquer le micro si le navigateur est incompatible
+        btnMicro.style.display = 'none'; 
     }
 }
 
-// Événements
+// Événements de saisie et d'envoi
 
 if (btnEnvoyer) {
-  btnEnvoyer.addEventListener('click', envoyerMessage);
+    btnEnvoyer.addEventListener('click', envoyerMessage);
 }
 
 if (champSaisie) {
-  champSaisie.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      envoyerMessage();
-    }
-  });
+    champSaisie.addEventListener('keydown', (e) => {
+        if (e.key === 'Enter' && !e.shiftKey) {
+            e.preventDefault();
+            envoyerMessage();
+        }
+    });
 
-  champSaisie.addEventListener('input', function () {
-    this.style.height = 'auto';
-    this.style.height = Math.min(this.scrollHeight, 120) + 'px';
-  });
+    champSaisie.addEventListener('input', function () {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 120) + 'px';
+    });
 }
-
-// Boutons de langue
-document.querySelectorAll('.btn-langue').forEach(btn => {
-  btn.addEventListener('click', function () {
-    document.querySelectorAll('.btn-langue')
-      .forEach(b => b.classList.remove('active'));
-    this.classList.add('active');
-
-    const lang = this.dataset.lang;
-    if (champSaisie) {
-      if (lang === 'fon') {
-        champSaisie.placeholder = 'Wlan do wa ... (Écris ici en Fon)';
-      } else {
-        champSaisie.placeholder = 'Écris ton message ici (Fon ou Français)...';
-      }
-    }
-  });
-});

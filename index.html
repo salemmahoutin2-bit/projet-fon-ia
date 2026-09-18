@@ -25,7 +25,6 @@
             left: 0;
             width: 100%;
             height: 100%;
-            /* Fond allégé pour que l'image de fond soit bien visible */
             background: linear-gradient(135deg, rgba(11, 27, 20, 0.70) 0%, rgba(20, 48, 35, 0.75) 100%), 
                         url('https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&w=2000&q=90') no-repeat center center fixed;
             background-size: cover;
@@ -66,7 +65,6 @@
             box-shadow: 0 4px 15px rgba(212, 163, 115, 0.3);
         }
 
-        /* Décoration luxueuse et soignée du titre */
         .auth-wrapper h1 {
             font-size: 2.2rem;
             font-weight: 800;
@@ -170,7 +168,23 @@
             box-shadow: 0 8px 25px rgba(212, 163, 115, 0.4);
         }
 
-        /* L'application principale est cachée tant que l'utilisateur n'est pas connecté */
+        /* Bouton déconnexion discret */
+        .btn-logout {
+            background: rgba(217, 4, 41, 0.2);
+            color: #ff4d6d;
+            border: 1px solid rgba(217, 4, 41, 0.4);
+            padding: 6px 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 0.8rem;
+            transition: 0.2s;
+        }
+        .btn-logout:hover {
+            background: rgba(217, 4, 41, 0.4);
+            color: #fff;
+        }
+
+        /* L'application principale */
         #app-container {
             display: none;
         }
@@ -208,27 +222,29 @@
         </div>
     </div>
 
-    <!-- APPLICATION PRINCIPALE (Clavier Fon & Chat) -->
+    <!-- APPLICATION PRINCIPALE -->
     <div id="app-container">
         <!-- En-tete de la page -->
         <header>
             <div id="header-content">
-                <h1>🌍 IA en Fon</h1>
+                <h1 id="ui-title">🌍 IA en Fon</h1>
                 <p id="sous-titre">Parle avec l’IA dans ta langue natale</p>
             </div>
-            <div id="langue-switch">
-                <button class="btn-langue active" data-lang="fr">Francais</button>
-                <button class="btn-langue" data-lang="fon">Fon</button>
+            <div style="display: flex; align-items: center; gap: 10px;">
+                <div id="langue-switch">
+                    <button class="btn-langue active" data-lang="fr">Français</button>
+                    <button class="btn-langue" data-lang="fon">Fon</button>
+                </div>
+                <button id="btn-deconnexion" class="btn-logout" title="Se déconnecter">✕</button>
             </div>
         </header>
 
         <main>
             <!-- ===== SECTION CLAVIER FON ===== -->
             <section id="section-clavier">
-                <h2>⌨️ Clavier Fon</h2>
-                <p class="aide">Clique sur les lettres pour ecrire en Fon</p>
+                <h2 id="ui-keyboard-title">⌨️ Clavier Fon</h2>
+                <p class="aide" id="ui-keyboard-help">Clique sur les lettres pour écrire en Fon</p>
 
-                <!-- Rangees du clavier -->
                 <div id="clavier-container">
                     <div class="rangee" id="rangee-consonnes"></div>
                     <div class="rangee" id="rangee-voyelles"></div>
@@ -236,63 +252,41 @@
                     <div class="rangee" id="rangee-actions"></div>
                 </div>
 
-                <!-- Zone de texte Fon -->
                 <textarea
                     id="texte-fon"
                     rows="3"
-                    placeholder="Ton texte en Fon apparait ici ..."
+                    placeholder="Ton texte en Fon apparaît ici ..."
                     spellcheck="false"
                 ></textarea>
 
-                <!-- Boutons d’action sur le texte -->
                 <div id="actions-texte">
-                    <button id="btn-copier" class="btn-action">
-                        Copier le texte
-                    </button>
-                    <button id="btn-effacer-tout" class="btn-action danger">
-                        Tout effacer
-                    </button>
-                    <button id="btn-envoyer-ia" class="btn-action primary">
-                        Envoyer a l’IA
-                    </button>
+                    <button id="btn-copier" class="btn-action">Copier le texte</button>
+                    <button id="btn-effacer-tout" class="btn-action danger">Tout effacer</button>
+                    <button id="btn-envoyer-ia" class="btn-action primary">Envoyer à l’IA</button>
                 </div>
             </section>
 
             <!-- ===== SECTION CHAT IA ===== -->
             <section id="section-chat">
-                <h2>🤖 Conversation avec l’IA</h2>
+                <h2 id="ui-chat-title">🤖 Conversation avec l’IA</h2>
 
-                <!-- Affichage des messages -->
                 <div id="messages" role="log" aria-live="polite">
-                    <!-- Message de bienvenue -->
-                    <div class="message msg-ia">
-                        <span class="avatar-ia">IA</span>
-                        <div class="bulle">
-                            Bonjour ! Je suis ton assistant IA. Je peux communiquer
-                            en Fon et en Francais. Utilise le clavier ci-dessus
-                            pour ecrire en Fon, ou ecris directement ici.
-                        </div>
-                    </div>
+                    <!-- Les messages de l'historique s'injecteront ici -->
                 </div>
 
-                <!-- Zone de saisie manuelle -->
                 <div id="zone-saisie">
                     <textarea
                         id="saisie-message"
                         rows="2"
-                        placeholder="Ecris ton message ici (Fon ou Francais) ..."
+                        placeholder="Écris ton message ici (Fon ou Français) ..."
                         spellcheck="false"
                     ></textarea>
-                    <!-- Bouton Microphone -->
                     <button id="btn-micro" title="Parler" aria-label="Parler" style="background: #d4a373; border: none; border-radius: 8px; padding: 0 12px; cursor: pointer; margin-right: 5px; font-size: 1.1rem;">
                         🎤
                     </button>
-                    <button id="btn-envoyer" aria-label="Envoyer">
-                        ➤
-                    </button>
+                    <button id="btn-envoyer" aria-label="Envoyer">➤</button>
                 </div>
 
-                <!-- Indicateur de chargement -->
                 <div id="chargement" hidden>
                     <span class="point"></span>
                     <span class="point"></span>
@@ -306,25 +300,107 @@
         </footer>
     </div>
 
-    <!-- Scripts (ordre important) -->
+    <!-- Scripts -->
     <script src="clavier.js"></script>
     <script src="ia.js"></script>
 
     <script>
-        // Logique de l'authentification Google
         const CLIENT_ID = "764270245740-5gsnq1blcdfp3nfjhckkbniubv3rrva8.apps.googleusercontent.com";
         let tokenClient;
 
+        // Dictionnaire de traduction de l'interface (Français / Fon)
+        const dictionnaire = {
+            fr: {
+                title: "🌍 IA en Fon",
+                subtitle: "Parle avec l’IA dans ta langue natale",
+                keyboardTitle: "⌨️ Clavier Fon",
+                keyboardHelp: "Clique sur les lettres pour écrire en Fon",
+                textAreaPlaceholder: "Ton texte en Fon apparaît ici ...",
+                btnCopy: "Copier le texte",
+                btnClear: "Tout effacer",
+                btnSendToAi: "Envoyer à l’IA",
+                chatTitle: "🤖 Conversation avec l’IA",
+                chatPlaceholder: "Écris ton message ici (Fon ou Français) ...",
+                defaultAiMsg: "Bonjour ! Je suis ton assistant IA. Je peux communiquer en Fon et en Français. Utilise le clavier ci-dessus pour écrire en Fon, ou écris directement ici."
+            },
+            fon: {
+                title: "🌍 Fon Gbè IA",
+                subtitle: "Kpɔ́n alɔgɔtɔ́ mitɔn ɖo Fɔngbè mɛ",
+                keyboardTitle: "⌨️ Fɔngbè Wɛwlan-gbá",
+                keyboardHelp: "Kplan nǔkpɔ́n dó wema jí bo wlan Fɔngbè",
+                textAreaPlaceholder: "Fɔngbè towě na tɔ́n ɖò fí ...",
+                btnCopy: "Sɔ́ wɛn ɔ",
+                btnClear: "Sɔ́ bǐ sɔ́ न्यायालया",
+                btnSendToAi: "Ɖɔ dó Alɔgɔtɔ́ ɔ",
+                chatTitle: "🤖 Flanclé ɖò Alɔgɔtɔ́ ɔ gɔ́n",
+                chatPlaceholder: "Wlan wɛn towě ɖò fí (Fɔngbè alǒ Flanségbè) ...",
+                defaultAiMsg: "Kɔ́! Un nyí alɔgɔtɔ́ towě. Un sixo ɖɔ xó ɖò Fɔngbè mɛ kpó Flanségbè kpó. Zán wɛwlan-gbá ɔ alǒ wlan nǔ ɖò fí."
+            }
+        };
+
+        let langueActuelle = localStorage.getItem('user_lang') || 'fr';
+
+        function appliquerTraduction(lang) {
+            langueActuelle = lang;
+            localStorage.setItem('user_lang', lang);
+
+            // Mise à jour des boutons de langue
+            document.querySelectorAll('.btn-langue').forEach(b => {
+                b.classList.toggle('active', b.getAttribute('data-lang') === lang);
+            });
+
+            // Textes de l'interface
+            const t = dictionnaire[lang];
+            document.getElementById('ui-title').innerText = t.title;
+            document.getElementById('sous-titre').innerText = t.subtitle;
+            document.getElementById('ui-keyboard-title').innerText = t.keyboardTitle;
+            document.getElementById('ui-keyboard-help').innerText = t.keyboardHelp;
+            document.getElementById('texte-fon').placeholder = t.textAreaPlaceholder;
+            document.getElementById('btn-copier').innerText = t.btnCopy;
+            document.getElementById('btn-effacer-tout').innerText = t.btnClear;
+            document.getElementById('btn-envoyer-ia').innerText = t.btnSendToAi;
+            document.getElementById('ui-chat-title').innerText = t.chatTitle;
+            document.getElementById('saisie-message').placeholder = t.chatPlaceholder;
+
+            // Si le premier message par défaut est affiché, on le met à jour
+            const premierMessageBulle = document.querySelector('.msg-ia .bulle');
+            if (premierMessageBulle && (premierMessageBulle.dataset.default === "true" || !premierMessageBulle.dataset.userCustom)) {
+                premierMessageBulle.innerText = t.defaultAiMsg;
+                premierMessageBulle.dataset.default = "true";
+            }
+        }
+
+        // Gestion des boutons de langue
+        document.querySelectorAll('.btn-langue').forEach(btn => {
+            btn.addEventListener('click', () => {
+                appliquerTraduction(btn.getAttribute('data-lang'));
+            });
+        });
+
+        // --- GESTION DE LA SESSION PERSISTANTE & HISTORIQUE ---
+        function verifierSession() {
+            const isConnected = localStorage.getItem('user_connected');
+            if (isConnected === 'true') {
+                document.getElementById('auth-overlay').style.display = 'none';
+                document.getElementById('app-container').style.display = 'block';
+                chargerHistorique();
+            }
+        }
+
         window.onload = function () {
+            verifierSession();
+            appliquerTraduction(langueActuelle);
+
             if (typeof google !== 'undefined' && google.accounts) {
                 tokenClient = google.accounts.oauth2.initTokenClient({
                     client_id: CLIENT_ID,
                     scope: 'email profile',
                     callback: (tokenResponse) => {
                         if (tokenResponse && tokenResponse.access_token) {
-                            // Connexion réussie : on masque la page d'accueil et on affiche l'appli
+                            localStorage.setItem('user_connected', 'true');
                             document.getElementById('auth-overlay').style.display = 'none';
                             document.getElementById('app-container').style.display = 'block';
+                            chargerHistorique();
                         }
                     },
                 });
@@ -338,7 +414,37 @@
                 alert("Le service de connexion Google est en cours de chargement, réessayez dans un instant.");
             }
         });
-    </script>
 
+        // Bouton de déconnexion
+        document.getElementById('btn-deconnexion').addEventListener('click', function() {
+            if(confirm("Voulez-vous vous déconnecter de votre compte fixe ?")) {
+                localStorage.removeItem('user_connected');
+                localStorage.removeItem('chat_history');
+                location.reload();
+            }
+        });
+
+        // Sauvegarde et chargement de l'historique des conversations
+        function sauvegarderHistorique() {
+            const container = document.getElementById('messages');
+            localStorage.setItem('chat_history', container.innerHTML);
+        }
+
+        function chargerHistorique() {
+            const container = document.getElementById('messages');
+            const savedHistory = localStorage.getItem('chat_history');
+            if (savedHistory) {
+                container.innerHTML = savedHistory;
+            } else {
+                // Message par défaut initial
+                container.innerHTML = `
+                    <div class="message msg-ia">
+                        <span class="avatar-ia">IA</span>
+                        <div class="bulle" data-default="true">${dictionnaire[langueActuelle].defaultAiMsg}</div>
+                    </div>
+                `;
+            }
+        }
+    </script>
 </body>
 </html>
