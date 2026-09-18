@@ -3,122 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Projet Fon IA</title>
+    <title>IA en Fon -- Fon gbe nu</title>
     <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
     <!-- Script officiel Google Identity Services -->
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <style>
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            font-family: 'Poppins', sans-serif;
-        }
-
-        body {
-            background: linear-gradient(rgba(10, 25, 18, 0.85), rgba(8, 28, 21, 0.90)), 
+        /* Style spécifique pour la barrière d'authentification Google */
+        #auth-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(rgba(10, 25, 18, 0.92), rgba(8, 28, 21, 0.95)), 
                         url('https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
             background-size: cover;
-            color: #ffffff;
-            min-height: 100vh;
             display: flex;
-            flex-direction: column;
-            justify-content: space-between;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
             padding: 20px;
         }
 
-        /* --- SECTION ACCUEIL --- */
-        #auth-section {
-            max-width: 600px;
-            margin: auto;
+        .auth-card {
+            background: rgba(15, 30, 22, 0.9);
+            backdrop-filter: blur(10px);
+            border: 1px solid rgba(212, 163, 115, 0.4);
+            border-radius: 20px;
+            padding: 30px;
+            max-width: 500px;
+            width: 100%;
             text-align: center;
-            padding: 20px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.6);
         }
 
-        .badge {
+        .auth-badge {
             background-color: #d4a373;
             color: #081c15;
             padding: 6px 16px;
             border-radius: 20px;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             font-weight: 600;
             display: inline-block;
-            margin-bottom: 20px;
+            margin-bottom: 15px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
         }
 
-        h1 {
-            font-size: 2.2rem;
-            margin-bottom: 15px;
-            font-weight: 700;
+        .auth-card h2 {
+            font-size: 1.8rem;
             color: #fefae0;
-            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
-        }
-
-        h1 span {
-            color: #d4a373;
-        }
-
-        p {
-            font-size: 1rem;
-            line-height: 1.6;
-            color: #ccd5ae;
-            margin-bottom: 30px;
-            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
-        }
-
-        .card-objectifs {
-            background: rgba(15, 30, 22, 0.75);
-            backdrop-filter: blur(8px);
-            border: 1px solid rgba(212, 163, 115, 0.4);
-            border-radius: 15px;
-            padding: 20px;
-            text-align: left;
-            margin-bottom: 30px;
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-        }
-
-        .card-objectifs h3 {
-            color: #d4a373;
-            margin-bottom: 12px;
-            font-size: 1.1rem;
-            border-bottom: 1px solid rgba(212, 163, 115, 0.2);
-            padding-bottom: 5px;
-        }
-
-        .card-objectifs ul {
-            list-style-type: none;
-            padding-left: 0;
-        }
-
-        .card-objectifs li {
             margin-bottom: 10px;
-            font-size: 0.95rem;
-            color: #e9edc9;
-            display: flex;
-            align-items: center;
         }
 
-        .card-objectifs li::before {
-            content: "✦";
+        .auth-card h2 span {
             color: #d4a373;
-            margin-right: 10px;
         }
 
-        .login-box {
-            background: rgba(15, 30, 22, 0.85);
-            padding: 25px;
-            border-radius: 15px;
-            border: 1px solid rgba(212, 163, 115, 0.3);
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
+        .auth-card p {
+            font-size: 0.95rem;
+            color: #ccd5ae;
+            margin-bottom: 25px;
+            line-height: 1.5;
         }
 
-        .btn-google {
+        .btn-google-login {
             background: #ffffff;
             color: #333333;
             border: none;
@@ -127,171 +77,140 @@
             font-weight: 600;
             font-size: 1rem;
             cursor: pointer;
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 10px;
+            gap: 12px;
             transition: all 0.3s ease;
             box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+            margin: 0 auto;
         }
 
-        .btn-google:hover {
+        .btn-google-login:hover {
             background: #f1f1f1;
             transform: translateY(-2px);
         }
 
-        /* --- SECTION CHAT (Cachée par défaut) --- */
-        #chat-section {
+        /* L'application principale est cachée tant que l'utilisateur n'est pas connecté */
+        #app-container {
             display: none;
-            max-width: 800px;
-            width: 100%;
-            margin: auto;
-            background: rgba(15, 30, 22, 0.9);
-            border-radius: 15px;
-            border: 1px solid rgba(212, 163, 115, 0.4);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.5);
-            overflow: hidden;
-            flex-direction: column;
-            height: 85vh;
-        }
-
-        .chat-header {
-            background: #081c15;
-            padding: 15px 20px;
-            border-bottom: 1px solid rgba(212, 163, 115, 0.3);
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-
-        .chat-header h2 {
-            color: #d4a373;
-            font-size: 1.2rem;
-        }
-
-        .chat-messages {
-            flex: 1;
-            padding: 20px;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        .message {
-            padding: 12px 16px;
-            border-radius: 10px;
-            max-width: 80%;
-            font-size: 0.95rem;
-            line-height: 1.5;
-        }
-
-        .message.ai {
-            background: rgba(212, 163, 115, 0.15);
-            color: #fefae0;
-            border: 1px solid rgba(212, 163, 115, 0.3);
-            align-self: flex-start;
-        }
-
-        .message.user {
-            background: #d4a373;
-            color: #081c15;
-            align-self: flex-end;
-            font-weight: 500;
-        }
-
-        .chat-input-area {
-            padding: 15px;
-            background: #081c15;
-            border-top: 1px solid rgba(212, 163, 115, 0.3);
-            display: flex;
-            gap: 10px;
-        }
-
-        .chat-input-area input {
-            flex: 1;
-            padding: 12px 15px;
-            border-radius: 8px;
-            border: 1px solid rgba(212, 163, 115, 0.4);
-            background: rgba(255, 255, 255, 0.05);
-            color: #ffffff;
-            font-size: 0.95rem;
-        }
-
-        .chat-input-area input:focus {
-            outline: none;
-            border-color: #d4a373;
-        }
-
-        .chat-input-area button {
-            background: #d4a373;
-            color: #081c15;
-            border: none;
-            padding: 0 20px;
-            border-radius: 8px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: background 0.3s;
-        }
-
-        .chat-input-area button:hover {
-            background: #c39262;
-        }
-
-        footer {
-            text-align: center;
-            font-size: 0.8rem;
-            color: #a3b8af;
-            padding-top: 10px;
-            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
         }
     </style>
 </head>
 <body>
 
-    <!-- PAGE 1 : ACCUEIL & AUTHENTIFICATION -->
-    <div id="auth-section">
-        <div class="badge">Patrimoine & Technologie</div>
-        <h1>Akwaba sur <span>Fon IA</span></h1>
-        <p>Votre assistant intelligent nouvelle génération conçu pour valoriser, enseigner et faciliter l'usage de la langue Fon au Bénin.</p>
-
-        <div class="card-objectifs">
-            <h3>Objectifs du Projet :</h3>
-            <ul>
-                <li>Favoriser l'apprentissage interactif de la langue Fon.</li>
-                <li>Traduire et assister au quotidien (culture, communication, éducation).</li>
-                <li>Créer un pont technologique moderne pour notre riche patrimoine.</li>
-            </ul>
-        </div>
-
-        <div class="login-box">
-            <p style="color: #fefae0; font-size: 0.95rem; margin-bottom: 5px;">Connectez-vous avec votre compte Google pour accéder à l'IA :</p>
-            <button id="googleLoginBtn" class="btn-google">
+    <!-- PAGE DE CONNEXION GOOGLE (S'affiche en premier) -->
+    <div id="auth-overlay">
+        <div class="auth-card">
+            <div class="auth-badge">Patrimoine & Technologie</div>
+            <h2>Akwaba sur <span>Fon IA</span></h2>
+            <p>Connectez-vous avec votre compte Google pour accéder au clavier intelligent et à l'assistant.</p>
+            <button id="googleLoginBtn" class="btn-google-login">
                 <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.49h4.84c-.21 1.12-.84 2.07-1.8 2.72v2.28h2.92c1.7-1.56 2.68-3.86 2.68-6.65z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.28c-.81.54-1.85.86-3.04.86-2.34 0-4.32-1.58-5.03-3.71H.95v2.33C2.43 15.83 5.48 18 9 18z"/><path fill="#FBBC05" d="M3.97 10.77c-.19-.57-.3-1.19-.3-1.82s.11-1.25.3-1.82V4.8H.95C.34 6.08 0 7.5 0 9s.34 2.92.95 4.2l3.02-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.43 2.17.95 4.8l3.02 2.33c.71-2.13 2.69-3.55 5.03-3.55z"/></svg>
                 Se connecter avec Google
             </button>
         </div>
     </div>
 
-    <!-- PAGE 2 : INTERFACE DE CHAT (S'affiche après connexion) -->
-    <div id="chat-section">
-        <div class="chat-header">
-            <h2>Fon IA - Assistant Intelligent</h2>
-            <span id="userEmail" style="font-size: 0.85rem; color: #d4a373;"></span>
-        </div>
-        <div class="chat-messages" id="chatMessages">
-            <div class="message ai">Mawu ni dó gbé nú mitɔn! (Bonjour à vous). Je suis votre assistant Fon IA. Comment puis-je vous aider aujourd'hui ?</div>
-        </div>
-        <div class="chat-input-area">
-            <input type="text" id="userInput" placeholder="Posez votre question en français ou en fon..." />
-            <button id="sendBtn">Envoyer</button>
-        </div>
+    <!-- APPLICATION PRINCIPALE (Votre code d'origine restauré et sécurisé) -->
+    <div id="app-container">
+        <!-- En-tete de la page -->
+        <header>
+            <div id="header-content">
+                <h1>🌍 IA en Fon</h1>
+                <p id="sous-titre">Parle avec l’IA dans ta langue natale</p>
+            </div>
+            <div id="langue-switch">
+                <button class="btn-langue active" data-lang="fr">Francais</button>
+                <button class="btn-langue" data-lang="fon">Fon</button>
+            </div>
+        </header>
+
+        <main>
+            <!-- ===== SECTION CLAVIER FON ===== -->
+            <section id="section-clavier">
+                <h2>⌨️ Clavier Fon</h2>
+                <p class="aide">Clique sur les lettres pour ecrire en Fon</p>
+
+                <!-- Rangees du clavier -->
+                <div id="clavier-container">
+                    <div class="rangee" id="rangee-consonnes"></div>
+                    <div class="rangee" id="rangee-voyelles"></div>
+                    <div class="rangee" id="rangee-tons"></div>
+                    <div class="rangee" id="rangee-actions"></div>
+                </div>
+
+                <!-- Zone de texte Fon -->
+                <textarea
+                    id="texte-fon"
+                    rows="3"
+                    placeholder="Ton texte en Fon apparait ici ..."
+                    spellcheck="false"
+                ></textarea>
+
+                <!-- Boutons d’action sur le texte -->
+                <div id="actions-texte">
+                    <button id="btn-copier" class="btn-action">
+                        Copier le texte
+                    </button>
+                    <button id="btn-effacer-tout" class="btn-action danger">
+                        Tout effacer
+                    </button>
+                    <button id="btn-envoyer-ia" class="btn-action primary">
+                        Envoyer a l’IA
+                    </button>
+                </div>
+            </section>
+
+            <!-- ===== SECTION CHAT IA ===== -->
+            <section id="section-chat">
+                <h2>🤖 Conversation avec l’IA</h2>
+
+                <!-- Affichage des messages -->
+                <div id="messages" role="log" aria-live="polite">
+                    <!-- Message de bienvenue -->
+                    <div class="message msg-ia">
+                        <span class="avatar-ia">IA</span>
+                        <div class="bulle">
+                            Bonjour ! Je suis ton assistant IA. Je peux communiquer
+                            en Fon et en Francais. Utilise le clavier ci-dessus
+                            pour ecrire en Fon, ou ecris directement ici.
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Zone de saisie manuelle -->
+                <div id="zone-saisie">
+                    <textarea
+                        id="saisie-message"
+                        rows="2"
+                        placeholder="Ecris ton message ici (Fon ou Francais) ..."
+                        spellcheck="false"
+                    ></textarea>
+                    <button id="btn-envoyer" aria-label="Envoyer">
+                        ➤
+                    </button>
+                </div>
+
+                <!-- Indicateur de chargement -->
+                <div id="chargement" hidden>
+                    <span class="point"></span>
+                    <span class="point"></span>
+                    <span class="point"></span>
+                </div>
+            </section>
+        </main>
+
+        <footer>
+            <p>Projet IA & Clavier Fon -- Salem MAHOUTIN -- ENS Natitingou</p>
+        </footer>
     </div>
 
-    <footer>
-        &copy; 2026 Projet Fon IA - Tous droits réservés
-    </footer>
+    <!-- Scripts (ordre important) -->
+    <script src="clavier.js"></script>
+    <script src="ia.js"></script>
 
     <script>
+        // Logique de l'authentification Google
         const CLIENT_ID = "764270245740-5gsnq1blcdfp3nfjhckkbniubv3rrva8.apps.googleusercontent.com";
         let tokenClient;
 
@@ -302,9 +221,9 @@
                     scope: 'email profile',
                     callback: (tokenResponse) => {
                         if (tokenResponse && tokenResponse.access_token) {
-                            // Succès de la connexion : on cache l'accueil et on affiche le chat
-                            document.getElementById('auth-section').style.display = 'none';
-                            document.getElementById('chat-section').style.display = 'flex';
+                            // Connexion réussie : on masque la fenêtre de connexion et on affiche l'appli
+                            document.getElementById('auth-overlay').style.display = 'none';
+                            document.getElementById('app-container').style.display = 'block';
                         }
                     },
                 });
@@ -318,38 +237,7 @@
                 alert("Le service de connexion Google est en cours de chargement, réessayez dans un instant.");
             }
         });
-
-        // Gestion de l'envoi de messages dans le chat
-        document.getElementById('sendBtn').addEventListener('click', sendMessage);
-        document.getElementById('userInput').addEventListener('keypress', function (e) {
-            if (e.key === 'Enter') sendMessage();
-        });
-
-        function sendMessage() {
-            const input = document.getElementById('userInput');
-            const text = input.value.trim();
-            if (!text) return;
-
-            const chatMessages = document.getElementById('chatMessages');
-
-            // Afficher le message de l'utilisateur
-            const userMsg = document.createElement('div');
-            userMsg.className = 'message user';
-            userMsg.textContent = text;
-            chatMessages.appendChild(userMsg);
-            input.value = '';
-            chatMessages.scrollTop = chatMessages.scrollHeight;
-
-            // Simulation de réponse de l'IA (vous pourrez y brancher votre logique gemini-3.6-flash existante)
-            setTimeout(() => {
-                const aiMsg = document.createElement('div');
-                aiMsg.className = 'message ai';
-                aiMsg.textContent = "Je traite votre demande concernant la langue Fon...";
-                chatMessages.appendChild(aiMsg);
-                chatMessages.scrollTop = chatMessages.scrollHeight;
-            }, 1000);
-        }
     </script>
 
 </body>
-</html>
+</html>tml>
