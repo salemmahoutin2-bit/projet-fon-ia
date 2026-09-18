@@ -1,0 +1,15 @@
+{
+  "name": "IA en Fon",
+  "short_name": "Fon IA",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#0d1f17",
+  "theme_color": "#d4a373",
+  "icons": [
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
