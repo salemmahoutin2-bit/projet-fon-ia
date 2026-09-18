@@ -1,109 +1,218 @@
 <!DOCTYPE html>
 <html lang="fr">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>IA en Fon -- Fon gbe nu</title>
-  <link rel="stylesheet" href="style.css">
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projet Fon IA - Connexion</title>
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <!-- Script officiel Google Identity Services -->
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Poppins', sans-serif;
+        }
+
+        body {
+            background: linear-gradient(rgba(10, 25, 18, 0.85), rgba(8, 28, 21, 0.90)), 
+                        url('https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&w=1920&q=80') no-repeat center center fixed;
+            background-size: cover;
+            color: #ffffff;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 600px;
+            margin: auto;
+            text-align: center;
+            padding: 20px;
+        }
+
+        .badge {
+            background-color: #d4a373;
+            color: #081c15;
+            padding: 6px 16px;
+            border-radius: 20px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            display: inline-block;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
+
+        h1 {
+            font-size: 2.2rem;
+            margin-bottom: 15px;
+            font-weight: 700;
+            color: #fefae0;
+            text-shadow: 0 2px 4px rgba(0,0,0,0.5);
+        }
+
+        h1 span {
+            color: #d4a373;
+        }
+
+        p {
+            font-size: 1rem;
+            line-height: 1.6;
+            color: #ccd5ae;
+            margin-bottom: 30px;
+            text-shadow: 0 1px 3px rgba(0,0,0,0.5);
+        }
+
+        .card-objectifs {
+            background: rgba(15, 30, 22, 0.75);
+            backdrop-filter: blur(8px);
+            border: 1px solid rgba(212, 163, 115, 0.4);
+            border-radius: 15px;
+            padding: 20px;
+            text-align: left;
+            margin-bottom: 30px;
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+        }
+
+        .card-objectifs h3 {
+            color: #d4a373;
+            margin-bottom: 12px;
+            font-size: 1.1rem;
+            border-bottom: 1px solid rgba(212, 163, 115, 0.2);
+            padding-bottom: 5px;
+        }
+
+        .card-objectifs ul {
+            list-style-type: none;
+            padding-left: 0;
+        }
+
+        .card-objectifs li {
+            margin-bottom: 10px;
+            font-size: 0.95rem;
+            color: #e9edc9;
+            display: flex;
+            align-items: center;
+        }
+
+        .card-objectifs li::before {
+            content: "✦";
+            color: #d4a373;
+            margin-right: 10px;
+        }
+
+        .login-box {
+            background: rgba(15, 30, 22, 0.85);
+            padding: 25px;
+            border-radius: 15px;
+            border: 1px solid rgba(212, 163, 115, 0.3);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            gap: 15px;
+        }
+
+        .login-box p {
+            margin-bottom: 5px;
+            font-size: 0.95rem;
+            color: #fefae0;
+        }
+
+        .btn-google {
+            background: #ffffff;
+            color: #333333;
+            border: none;
+            padding: 12px 24px;
+            border-radius: 30px;
+            font-weight: 600;
+            font-size: 1rem;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 15px rgba(0,0,0,0.3);
+        }
+
+        .btn-google:hover {
+            background: #f1f1f1;
+            transform: translateY(-2px);
+        }
+
+        footer {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #a3b8af;
+            padding-top: 20px;
+            text-shadow: 0 1px 2px rgba(0,0,0,0.8);
+        }
+    </style>
 </head>
 <body>
 
-  <!-- En-tête de la page -->
-  <header>
-    <div id="header-content">
-      <h1>&#127758; IA en Fon</h1>
-      <p id="sous-titre">Parle avec l’IA dans ta langue natale</p>
-    </div>
-    <div id="langue-switch">
-      <button class="btn-langue active" data-lang="fr">Français</button>
-      <button class="btn-langue" data-lang="fon">Fon</button>
-    </div>
-  </header>
+    <div class="container">
+        <div class="badge">Patrimoine & Technologie</div>
+        <h1>Akwaba sur <span>Fon IA</span></h1>
+        <p>Votre assistant intelligent nouvelle génération conçu pour valoriser, enseigner et faciliter l'usage de la langue Fon au Bénin.</p>
 
-  <main>
-
-    <!-- ===== SECTION CLAVIER FON ===== -->
-    <section id="section-clavier">
-      <h2>&#9000; Clavier Fon</h2>
-      <p class="aide">Clique sur les lettres pour écrire en Fon</p>
-
-      <!-- Rangées du clavier -->
-      <div id="clavier-container">
-        <div class="rangee" id="rangee-consonnes"></div>
-        <div class="rangee" id="rangee-voyelles"></div>
-        <div class="rangee" id="rangee-tons"></div>
-        <div class="rangee" id="rangee-actions"></div>
-      </div>
-
-      <!-- Zone de texte Fon -->
-      <textarea
-        id="texte-fon"
-        rows="3"
-        placeholder="Ton texte en Fon apparaît ici..."
-        spellcheck="false"
-      ></textarea>
-
-      <!-- Boutons d’action sur le texte -->
-      <div id="actions-texte">
-        <button id="btn-copier" class="btn-action">
-          Copier le texte
-        </button>
-        <button id="btn-effacer-tout" class="btn-action danger">
-          Tout effacer
-        </button>
-        <button id="btn-envoyer-ia" class="btn-action primary">
-          Envoyer à l’IA
-        </button>
-      </div>
-    </section>
-
-    <!-- ===== SECTION CHAT IA ===== -->
-    <section id="section-chat">
-      <h2>&#129302; Conversation avec l’IA</h2>
-
-      <!-- Affichage des messages -->
-      <div id="messages" role="log" aria-live="polite">
-        <!-- Message de bienvenue -->
-        <div class="message msg-ia">
-          <span class="avatar-ia">IA</span>
-          <div class="bulle">
-            Bonjour ! Je suis ton assistant IA. Je peux communiquer
-            en Fon et en Français. Utilise le clavier ci-dessus
-            pour écrire en Fon, ou écris directement ici.
-          </div>
+        <div class="card-objectifs">
+            <h3>Objectifs du Projet :</h3>
+            <ul>
+                <li>Favoriser l'apprentissage interactif de la langue Fon.</li>
+                <li>Traduire et assister au quotidien (culture, communication, éducation).</li>
+                <li>Créer un pont technologique moderne pour notre riche patrimoine.</li>
+            </ul>
         </div>
-      </div>
 
-      <!-- Zone de saisie manuelle -->
-      <div id="zone-saisie">
-        <textarea
-          id="saisie-message"
-          rows="2"
-          placeholder="Écris ton message ici (Fon ou Français)..."
-          spellcheck="false"
-        ></textarea>
-        <button id="btn-envoyer" aria-label="Envoyer">
-          &#10148;
-        </button>
-      </div>
+        <div class="login-box">
+            <p>Connectez-vous avec votre compte Google pour accéder à l'IA :</p>
+            
+            <!-- Bouton personnalisé sécurisé -->
+            <button id="googleLoginBtn" class="btn-google">
+                <svg width="18" height="18" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.49h4.84c-.21 1.12-.84 2.07-1.8 2.72v2.28h2.92c1.7-1.56 2.68-3.86 2.68-6.65z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.28c-.81.54-1.85.86-3.04.86-2.34 0-4.32-1.58-5.03-3.71H.95v2.33C2.43 15.83 5.48 18 9 18z"/><path fill="#FBBC05" d="M3.97 10.77c-.19-.57-.3-1.19-.3-1.82s.11-1.25.3-1.82V4.8H.95C.34 6.08 0 7.5 0 9s.34 2.92.95 4.2l3.02-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.43 2.17.95 4.8l3.02 2.33c.71-2.13 2.69-3.55 5.03-3.55z"/></svg>
+                Se connecter avec Google
+            </button>
+        </div>
+    </div>
 
-      <!-- Indicateur de chargement -->
-      <div id="chargement" hidden>
-        <span class="point"></span>
-        <span class="point"></span>
-        <span class="point"></span>
-      </div>
-    </section>
+    <footer>
+        &copy; 2026 Projet Fon IA - Tous droits réservés
+    </footer>
 
-  </main>
+    <script>
+        // Votre Client ID configuré
+        const CLIENT_ID = "764270245740-5gsnq1blcdfp3nfjhckkbniubv3rrva8.apps.googleusercontent.com";
 
-  <footer>
-    <p>Projet IA & Clavier Fon -- Salem MAHOUTIN -- ENS Natitingou</p>
-  </footer>
+        let tokenClient;
 
-  <!-- Scripts (ordre important) -->
-  <script src="clavier.js"></script>
-  <script src="ia.js"></script>
+        window.onload = function () {
+            if (typeof google !== 'undefined' && google.accounts) {
+                tokenClient = google.accounts.oauth2.initTokenClient({
+                    client_id: CLIENT_ID,
+                    scope: 'email profile',
+                    callback: (tokenResponse) => {
+                        if (tokenResponse && tokenResponse.access_token) {
+                            // Connexion réussie, redirection vers chat.html
+                            window.location.href = "chat.html";
+                        }
+                    },
+                });
+            }
+        };
+
+        document.getElementById('googleLoginBtn').addEventListener('click', function () {
+            if (tokenClient) {
+                tokenClient.requestAccessToken();
+            } else {
+                alert("Le service de connexion Google est en cours de chargement, réessayez dans un instant.");
+            }
+        });
+    </script>
 
 </body>
 </html>
