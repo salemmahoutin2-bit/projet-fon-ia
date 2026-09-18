@@ -1,39 +1,26 @@
-// Fichier : api/chat.js (Exécuté côté serveur par Vercel)
+import { GoogleGenAI } from '@google/genai';
+
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+
 export default async function handler(req, res) {
-  if (req.method !== 'POST') {
-    return res.status(405).json({ error: 'Méthode non autorisée' });
-  }
-
-  const { contents, system_instruction } = req.body;
-  const CLE_API = process.env.GEMINI_API_KEY;
-
-  if (!CLE_API) {
-    return res.status(500).json({ error: "La clé API GEMINI_API_KEY n'est pas configurée dans Vercel." });
-  }
-
-  try {
-    // Utilisation du modèle gemini-3.6-flash préconisé par l'API
-    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${CLE_API}`;
-
-    const response = await fetch(url, {
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json'
-      },
-      body: JSON.stringify({
-        system_instruction,
-        contents
-      })
-    });
-
-    const data = await response.json();
-
-    if (!response.ok) {
-      return res.status(response.status).json(data);
+    if (req.method !== 'POST') {
+        return res.status(405).json({ error: 'Méthode non autorisée' });
     }
 
-    return res.status(200).json(data);
-  } catch (error) {
-    return res.status(500).json({ error: error.message });
-  }
+    try {
+        const { contents, systemInstruction } = req.body;
+
+        const response = await ai.models.generateContent({
+            model: 'gemini-2.5-flash', // ou gemini-1.5-flash selon votre configuration
+            contents: contents,
+            config: {
+                systemInstruction: systemInstruction ? systemInstruction.parts[0].text : undefined
+            }
+        });
+
+        return res.status(200).json(response);
+    } catch (error) {
+        console.error('Erreur API Vercel:', error);
+        return res.status(500).json({ error: error.message || 'Erreur interne du serveur' });
+    }
 }
