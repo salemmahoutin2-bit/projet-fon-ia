@@ -89,17 +89,17 @@ async function envoyerMessage() {
     setChargement(true);
 
     try {
-        // 4. Appel au serveur relais interne Vercel (/api/chat.js)
+        // 4. Appel au serveur relais interne Vercel (/api/chat.js) avec le format corrigé
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                system_instruction: {
+                contents: historique,
+                systemInstruction: {
                     parts: [{ text: promptSystemeActuel }]
-                },
-                contents: historique
+                }
             })
         });
 
