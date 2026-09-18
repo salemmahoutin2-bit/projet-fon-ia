@@ -1,7 +1,3 @@
-import { GoogleGenAI } from '@google/genai';
-
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
-
 export default async function handler(req, res) {
     if (req.method !== 'POST') {
         return res.status(405).json({ error: 'Méthode non autorisée' });
@@ -9,18 +5,40 @@ export default async function handler(req, res) {
 
     try {
         const { contents, systemInstruction } = req.body;
+        const apiKey = process.env.GEMINI_API_KEY;
 
-        const response = await ai.models.generateContent({
-            model: 'gemini-2.5-flash', // ou gemini-1.5-flash selon votre configuration
-            contents: contents,
-            config: {
-                systemInstruction: systemInstruction ? systemInstruction.parts[0].text : undefined
-            }
+        if (!apiKey) {
+            return res.status(500).json({ error: "La clé API Gemini n'est pas configurée dans Vercel." });
+        }
+
+        // Utilisation directe de l'API REST de Gemini (compatible à 100% avec Vercel)
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+
+        const payload = {
+            contents: contents
+        };
+
+        if (systemInstruction) {
+            payload.system_instruction = systemInstruction;
+        }
+
+        const apiResponse = await fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify(payload)
         });
 
-        return res.status(200).json(response);
+        const data = await apiResponse.json();
+
+        if (!apiResponse.ok) {
+            return res.status(apiResponse.status).json({ error: data.error?.message || 'Erreur de l\'API Gemini' });
+        }
+
+        return res.status(200).json(data);
     } catch (error) {
-        console.error('Erreur API Vercel:', error);
+        console.error('Erreur Serveur Vercel:', error);
         return res.status(500).json({ error: error.message || 'Erreur interne du serveur' });
     }
 }
