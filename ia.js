@@ -64,6 +64,15 @@ function sauvegarderSessions() {
     localStorage.setItem('gemini_fon_conversations', JSON.stringify(listeConversations));
     localStorage.setItem('gemini_fon_current_id', conversationActuelleId);
 }
+// Gestion de l'ouverture / fermeture de la barre latérale
+const btnToggleSidebar = document.getElementById('btn-toggle-sidebar');
+const sidebar = document.getElementById('sidebar');
+
+if (btnToggleSidebar && sidebar) {
+    btnToggleSidebar.addEventListener('click', () => {
+        sidebar.classList.toggle('closed');
+    });
+}
 
 // Affichage d'un message dans la zone de chat
 function afficherMessage(texte, auteur) {
