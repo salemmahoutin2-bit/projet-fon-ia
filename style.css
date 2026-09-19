@@ -12,7 +12,6 @@
   --gris-clair: #f3f4f6;
   --blanc: #ffffff;
   --texte: #111827;
-  --or: #d4a373; /* Ajouté pour s'harmoniser avec la sidebar */
   --ombre: 0 2px 12px rgba(0, 0, 0, 0.10);
   --rayon: 12px;
 }
@@ -36,7 +35,7 @@ body {
 }
 
 /* ============================
-   EN-TÊTE & SIDEBAR CONTROLS
+   EN-TÊTE
    ============================ */
 header {
   display: flex;
@@ -46,36 +45,9 @@ header {
   background: var(--vert-fonce);
   color: white;
   box-shadow: var(--ombre);
-  height: 70px;
+  height: auto;
   flex-wrap: wrap;
   gap: 12px;
-  border-bottom: 1px solid rgba(212, 163, 115, 0.2);
-}
-
-.header-left {
-  display: flex;
-  align-items: center;
-  gap: 15px;
-}
-
-.btn-toggle-sidebar {
-  background: none;
-  border: 1.5px solid rgba(212, 163, 115, 0.4);
-  color: var(--or);
-  font-size: 1.2rem;
-  width: 40px;
-  height: 40px;
-  border-radius: 10px;
-  cursor: pointer;
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  transition: all 0.2s;
-}
-
-.btn-toggle-sidebar:hover {
-  background: rgba(212, 163, 115, 0.15);
-  border-color: var(--or);
 }
 
 #header-content h1 {
@@ -112,27 +84,6 @@ header {
   background: white;
   color: var(--vert);
   border-color: white;
-}
-
-/* ============================
-   BARRE LATÉRALE RÉTRACTABLE
-   ============================ */
-#sidebar {
-  width: 280px;
-  background: #0b1712;
-  color: #fff;
-  border-right: 1px solid rgba(212, 163, 115, 0.2);
-  display: flex;
-  flex-direction: column;
-  transition: transform 0.3s ease, width 0.3s ease;
-  z-index: 100;
-}
-
-#sidebar.closed {
-  transform: translateX(-100%);
-  width: 0;
-  overflow: hidden;
-  border-right: none;
 }
 
 /* ============================
@@ -446,8 +397,8 @@ footer {
    RESPONSIVE MOBILE
    ============================ */
 @media (max-width: 600px) {
-  header { padding: 10px 16px; }
-  header h1 { font-size: 1.2rem; }
+  header { padding: 10px 16px; flex-direction: column; align-items: flex-start; gap: 8px; }
+  #header-content h1 { font-size: 1.2rem; }
   main { margin: 12px auto; padding: 0 10px; }
   section { padding: 14px; }
   .touche { padding: 7px 9px; font-size: 0.9rem; min-width: 32px; }
