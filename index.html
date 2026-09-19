@@ -18,14 +18,12 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
-        /* --- PAGE D'ACCUEIL / AUTHENTIFICATION --- */
         #auth-overlay {
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
             height: 100%;
-            /* Fond allégé pour que l'image de fond soit bien visible */
             background: linear-gradient(135deg, rgba(11, 27, 20, 0.70) 0%, rgba(20, 48, 35, 0.75) 100%), 
                         url('https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&w=2000&q=90') no-repeat center center fixed;
             background-size: cover;
@@ -66,22 +64,18 @@
             box-shadow: 0 4px 15px rgba(212, 163, 115, 0.3);
         }
 
-        /* Décoration luxueuse et soignée du titre */
         .auth-wrapper h1 {
             font-size: 2.2rem;
             font-weight: 800;
             color: #fefae0;
             margin-bottom: 20px;
             line-height: 1.3;
-            text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
-            letter-spacing: 0.5px;
         }
 
         .auth-wrapper h1 span {
             background: linear-gradient(135deg, #ffb703, #fb8500, #d4a373);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            text-shadow: none;
             border-bottom: 3px solid #d4a373;
             padding-bottom: 2px;
         }
@@ -170,7 +164,6 @@
             box-shadow: 0 8px 25px rgba(212, 163, 115, 0.4);
         }
 
-        /* L'application principale est cachée tant que l'utilisateur n'est pas connecté */
         #app-container {
             display: none;
         }
@@ -192,7 +185,7 @@
                 <h3>Objectifs du Projet :</h3>
                 <ul>
                     <li>Valoriser la langue Fon et faciliter son utilisation numérique grâce à l'Intelligence Artificielle.</li>
-                    <li>Mettre à disposition un clavier ergonomique adapté aux spécificités de la langue Fon pour rédiger facilement.</li>
+                    <li>Mettre à disposition un clavier ergonomique adapté aux spécificités de la langue Fon.</li>
                     <li>Offrir un assistant conversationnel intelligent capable d'interagir en Fon et en français.</li>
                 </ul>
             </div>
@@ -208,27 +201,25 @@
         </div>
     </div>
 
-    <!-- APPLICATION PRINCIPALE (Clavier Fon & Chat) -->
+    <!-- APPLICATION PRINCIPALE -->
     <div id="app-container">
-        <!-- En-tete de la page -->
         <header>
             <div id="header-content">
-                <h1>🌍 IA en Fon</h1>
-                <p id="sous-titre">Parle avec l’IA dans ta langue natale</p>
+                <h1 data-translate="appTitle">🌍 IA en Fon</h1>
+                <p id="sous-titre" data-translate="appSubtitle">Parle avec l’IA dans ta langue natale</p>
             </div>
             <div id="langue-switch">
-                <button class="btn-langue active" data-lang="fr">Francais</button>
-                <button class="btn-langue" data-lang="fon">Fon</button>
+                <button class="btn-langue active" data-lang="fr">Français</button>
+                <button class="btn-langue" data-lang="fon">Fɔngbè</button>
             </div>
         </header>
 
         <main>
-            <!-- ===== SECTION CLAVIER FON ===== -->
+            <!-- SECTION CLAVIER FON -->
             <section id="section-clavier">
-                <h2>⌨️ Clavier Fon</h2>
-                <p class="aide">Clique sur les lettres pour ecrire en Fon</p>
+                <h2 data-translate="keyboardTitle">⌨️ Clavier Fon</h2>
+                <p class="aide" data-translate="keyboardHelp">Clique sur les lettres pour écrire en Fon</p>
 
-                <!-- Rangees du clavier -->
                 <div id="clavier-container">
                     <div class="rangee" id="rangee-consonnes"></div>
                     <div class="rangee" id="rangee-voyelles"></div>
@@ -236,63 +227,46 @@
                     <div class="rangee" id="rangee-actions"></div>
                 </div>
 
-                <!-- Zone de texte Fon -->
-                <textarea
-                    id="texte-fon"
-                    rows="3"
-                    placeholder="Ton texte en Fon apparait ici ..."
+                <textarea 
+                    id="texte-fon" 
+                    rows="3" 
+                    data-translate-placeholder="keyboardPlaceholder"
+                    placeholder="Ton texte en Fon apparaît ici ..." 
                     spellcheck="false"
                 ></textarea>
 
-                <!-- Boutons d’action sur le texte -->
                 <div id="actions-texte">
-                    <button id="btn-copier" class="btn-action">
-                        Copier le texte
-                    </button>
-                    <button id="btn-effacer-tout" class="btn-action danger">
-                        Tout effacer
-                    </button>
-                    <button id="btn-envoyer-ia" class="btn-action primary">
-                        Envoyer a l’IA
-                    </button>
+                    <button id="btn-copier" class="btn-action" data-translate="btnCopy">Copier le texte</button>
+                    <button id="btn-effacer-tout" class="btn-action danger" data-translate="btnClear">Tout effacer</button>
+                    <button id="btn-envoyer-ia" class="btn-action primary" data-translate="btnSendIa">Envoyer à l’IA</button>
                 </div>
             </section>
 
-            <!-- ===== SECTION CHAT IA ===== -->
+            <!-- SECTION CHAT IA -->
             <section id="section-chat">
-                <h2>🤖 Conversation avec l’IA</h2>
-
-                <!-- Affichage des messages -->
-                <div id="messages" role="log" aria-live="polite">
-                    <!-- Message de bienvenue -->
-                    <div class="message msg-ia">
-                        <span class="avatar-ia">IA</span>
-                        <div class="bulle">
-                            Bonjour ! Je suis ton assistant IA. Je peux communiquer
-                            en Fon et en Francais. Utilise le clavier ci-dessus
-                            pour ecrire en Fon, ou ecris directement ici.
-                        </div>
-                    </div>
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h2 data-translate="chatTitle" style="margin: 0;">🤖 Conversation avec l’IA</h2>
+                    <button id="btn-effacer-historique" class="btn-action danger" style="padding: 4px 10px; font-size: 0.75rem;" data-translate="btnClearHistory">Effacer l'historique</button>
                 </div>
 
-                <!-- Zone de saisie manuelle -->
+                <div id="messages" role="log" aria-live="polite">
+                    <!-- Message par défaut géré par JS -->
+                </div>
+
                 <div id="zone-saisie">
-                    <textarea
-                        id="saisie-message"
-                        rows="2"
-                        placeholder="Ecris ton message ici (Fon ou Francais) ..."
+                    <textarea 
+                        id="saisie-message" 
+                        rows="2" 
+                        data-translate-placeholder="chatPlaceholder"
+                        placeholder="Écris ton message ici (Fon ou Français) ..." 
                         spellcheck="false"
                     ></textarea>
-                    <!-- Bouton Microphone -->
                     <button id="btn-micro" title="Parler" aria-label="Parler" style="background: #d4a373; border: none; border-radius: 8px; padding: 0 12px; cursor: pointer; margin-right: 5px; font-size: 1.1rem;">
                         🎤
                     </button>
-                    <button id="btn-envoyer" aria-label="Envoyer">
-                        ➤
-                    </button>
+                    <button id="btn-envoyer" aria-label="Envoyer">➤</button>
                 </div>
 
-                <!-- Indicateur de chargement -->
                 <div id="chargement" hidden>
                     <span class="point"></span>
                     <span class="point"></span>
@@ -302,35 +276,110 @@
         </main>
 
         <footer>
-            <p>Projet IA & Clavier Fon -- Salem MAHOUTIN -- ENS Natitingou</p>
+            <p data-translate="footerText">Projet IA & Clavier Fon -- Salem MAHOUTIN -- ENS Natitingou</p>
         </footer>
     </div>
 
-    <!-- Scripts (ordre important) -->
+    <!-- Scripts -->
     <script src="clavier.js"></script>
     <script src="ia.js"></script>
 
     <script>
-        // Logique de l'authentification Google
-        const CLIENT_ID = "764270245740-5gsnq1blcdfp3nfjhckkbniubv3rrva8.apps.googleusercontent.com";
-        let tokenClient;
+        // Dictionnaires de traduction complets (Français / Fɔngbè)
+        const translations = {
+            fr: {
+                appTitle: "🌍 IA en Fon",
+                appSubtitle: "Parle avec l’IA dans ta langue natale",
+                keyboardTitle: "⌨️ Clavier Fon",
+                keyboardHelp: "Clique sur les lettres pour écrire en Fon",
+                keyboardPlaceholder: "Ton texte en Fon apparaît ici ...",
+                btnCopy: "Copier le texte",
+                btnClear: "Tout effacer",
+                btnSendIa: "Envoyer à l’IA",
+                chatTitle: "🤖 Conversation avec l’IA",
+                btnClearHistory: "Effacer l'historique",
+                welcomeMsg: "Bonjour ! Je suis ton assistant IA. Je peux communiquer en Fon et en français. Utilise le clavier ci-dessus pour écrire en Fon, ou écris directement ici.",
+                chatPlaceholder: "Écris ton message ici (Fon ou Français) ...",
+                footerText: "Projet IA & Clavier Fon -- Salem MAHOUTIN -- ENS Natitingou"
+            },
+            fon: {
+                appTitle: "🌍 Fɔngbè IA",
+                appSubtitle: "Sɔ́ Fɔngbè ɖò nùɖɔɖogbɛ́ ɔ mɛ",
+                keyboardTitle: "⌨️ Fɔngbè Wěwlan-gbá",
+                keyboardHelp: "Kpí nǔ kàn lɛ jí bá ɖó wěwlan ɖò Fɔngbè mɛ",
+                keyboardPlaceholder: "Fɔngbè wěwlan towě na tɔ́n ɖò fi...",
+                btnCopy: "Kpa wěwlan ɔ",
+                btnClear: "Sɔ́ bǐ sɔ́",
+                btnSendIa: "Dó cé nú IA",
+                chatTitle: "🤖 Nùɖɔɖó IA kpó mɛ kpó",
+                btnClearHistory: "Sɔ́ xóxó lɛ sɔ́",
+                welcomeMsg: "Bɔ̀! Un nyí alɔgɔ́tɔ́ towě. Un sixu ɖɔ xó ɖò Fɔngbè mɛ. Zán wěwlan-gbá ɔ ɖò aga ɖò fi alǒ wlan ɖò fi.",
+                chatPlaceholder: "Wlan wěwlan towě ɖò fi (Fɔngbè gànji)...",
+                footerText: "Projet IA & Fɔngbè -- Salem MAHOUTIN -- ENS Natitingou"
+            }
+        };
 
+        function setLanguage(lang) {
+            document.querySelectorAll('[data-translate]').forEach(el => {
+                const key = el.getAttribute('data-translate');
+                if (translations[lang] && translations[lang][key]) {
+                    el.textContent = translations[lang][key];
+                }
+            });
+            document.querySelectorAll('[data-translate-placeholder]').forEach(el => {
+                const key = el.getAttribute('data-translate-placeholder');
+                if (translations[lang] && translations[lang][key]) {
+                    el.placeholder = translations[lang][key];
+                }
+            });
+            localStorage.setItem('preferred_lang', lang);
+            
+            // Si le message de bienvenue est le premier affiché, on le met à jour dynamiquement dans la langue active
+            if (typeof mettreAJourMessageBienvenue === 'function') {
+                mettreAJourMessageBienvenue(lang);
+            }
+        }
+
+        document.querySelectorAll('.btn-langue').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.btn-langue').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                const lang = e.target.getAttribute('data-lang');
+                setLanguage(lang);
+            });
+        });
+
+        // Gestion de la persistance de session (Compte fixe / Connexion unique)
         window.onload = function () {
+            const isConnected = localStorage.getItem('user_connected');
+            if (isConnected === 'true') {
+                document.getElementById('auth-overlay').style.display = 'none';
+                document.getElementById('app-container').style.display = 'block';
+            }
+
             if (typeof google !== 'undefined' && google.accounts) {
                 tokenClient = google.accounts.oauth2.initTokenClient({
-                    client_id: CLIENT_ID,
+                    client_id: "764270245740-5gsnq1blcdfp3nfjhckkbniubv3rrva8.apps.googleusercontent.com",
                     scope: 'email profile',
                     callback: (tokenResponse) => {
                         if (tokenResponse && tokenResponse.access_token) {
-                            // Connexion réussie : on masque la page d'accueil et on affiche l'appli
+                            localStorage.setItem('user_connected', 'true');
                             document.getElementById('auth-overlay').style.display = 'none';
                             document.getElementById('app-container').style.display = 'block';
                         }
                     },
                 });
             }
+
+            const savedLang = localStorage.getItem('preferred_lang') || 'fr';
+            document.querySelectorAll('.btn-langue').forEach(b => {
+                if (b.getAttribute('data-lang') === savedLang) b.classList.add('active');
+                else b.classList.remove('active');
+            });
+            setLanguage(savedLang);
         };
 
+        let tokenClient;
         document.getElementById('googleLoginBtn').addEventListener('click', function () {
             if (tokenClient) {
                 tokenClient.requestAccessToken();
@@ -339,6 +388,5 @@
             }
         });
     </script>
-
 </body>
 </html>
