@@ -1,6 +1,6 @@
 /* ============================
-VARIABLES DE COULEURS
-============================ */
+   VARIABLES DE COULEURS
+   ============================ */
 :root {
   --vert: #1a6b4a;
   --vert-fonce: #0f4a32;
@@ -12,13 +12,14 @@ VARIABLES DE COULEURS
   --gris-clair: #f3f4f6;
   --blanc: #ffffff;
   --texte: #111827;
+  --or: #d4a373; /* Ajouté pour s'harmoniser avec la sidebar */
   --ombre: 0 2px 12px rgba(0, 0, 0, 0.10);
   --rayon: 12px;
 }
 
 /* ============================
-RESET & BASE
-============================ */
+   RESET & BASE
+   ============================ */
 *, *::before, *::after {
   box-sizing: border-box;
   margin: 0;
@@ -35,18 +36,46 @@ body {
 }
 
 /* ============================
-EN-TÊTE
-============================ */
+   EN-TÊTE & SIDEBAR CONTROLS
+   ============================ */
 header {
-  background: var(--vert);
-  color: white;
-  padding: 16px 24px;
   display: flex;
-  justify-content: space-between;
   align-items: center;
+  justify-content: space-between;
+  padding: 12px 24px;
+  background: var(--vert-fonce);
+  color: white;
   box-shadow: var(--ombre);
+  height: 70px;
   flex-wrap: wrap;
   gap: 12px;
+  border-bottom: 1px solid rgba(212, 163, 115, 0.2);
+}
+
+.header-left {
+  display: flex;
+  align-items: center;
+  gap: 15px;
+}
+
+.btn-toggle-sidebar {
+  background: none;
+  border: 1.5px solid rgba(212, 163, 115, 0.4);
+  color: var(--or);
+  font-size: 1.2rem;
+  width: 40px;
+  height: 40px;
+  border-radius: 10px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all 0.2s;
+}
+
+.btn-toggle-sidebar:hover {
+  background: rgba(212, 163, 115, 0.15);
+  border-color: var(--or);
 }
 
 #header-content h1 {
@@ -86,8 +115,29 @@ header {
 }
 
 /* ============================
-CONTENU PRINCIPAL
-============================ */
+   BARRE LATÉRALE RÉTRACTABLE
+   ============================ */
+#sidebar {
+  width: 280px;
+  background: #0b1712;
+  color: #fff;
+  border-right: 1px solid rgba(212, 163, 115, 0.2);
+  display: flex;
+  flex-direction: column;
+  transition: transform 0.3s ease, width 0.3s ease;
+  z-index: 100;
+}
+
+#sidebar.closed {
+  transform: translateX(-100%);
+  width: 0;
+  overflow: hidden;
+  border-right: none;
+}
+
+/* ============================
+   CONTENU PRINCIPAL
+   ============================ */
 main {
   flex: 1;
   max-width: 860px;
@@ -120,8 +170,8 @@ section h2 {
 }
 
 /* ============================
-CLAVIER FON
-============================ */
+   CLAVIER FON
+   ============================ */
 #clavier-container {
   display: flex;
   flex-direction: column;
@@ -250,8 +300,8 @@ CLAVIER FON
 }
 
 /* ============================
-SECTION CHAT IA
-============================ */
+   SECTION CHAT IA
+   ============================ */
 #messages {
   display: flex;
   flex-direction: column;
@@ -380,8 +430,8 @@ SECTION CHAT IA
 }
 
 /* ============================
-PIED DE PAGE
-============================ */
+   PIED DE PAGE
+   ============================ */
 footer {
   text-align: center;
   padding: 14px;
@@ -393,10 +443,10 @@ footer {
 }
 
 /* ============================
-RESPONSIVE MOBILE
-============================ */
+   RESPONSIVE MOBILE
+   ============================ */
 @media (max-width: 600px) {
-  header { padding: 12px 16px; }
+  header { padding: 10px 16px; }
   header h1 { font-size: 1.2rem; }
   main { margin: 12px auto; padding: 0 10px; }
   section { padding: 14px; }
@@ -406,56 +456,3 @@ RESPONSIVE MOBILE
   .msg-user .bulle,
   .msg-ia .bulle { max-width: 90%; }
 }
-/* Ajustement du header pour le bouton de la sidebar */
-        header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            padding: 10px 20px;
-            background: #0d1f17;
-            border-bottom: 1px solid rgba(212, 163, 115, 0.2);
-            height: 70px;
-        }
-
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 15px;
-        }
-
-        .btn-toggle-sidebar {
-            background: none;
-            border: 1px solid rgba(212, 163, 115, 0.3);
-            color: #d4a373;
-            font-size: 1.2rem;
-            width: 40px;
-            height: 40px;
-            border-radius: 10px;
-            cursor: pointer;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            transition: all 0.2s;
-        }
-
-        .btn-toggle-sidebar:hover {
-            background: rgba(212, 163, 115, 0.15);
-        }
-
-        /* Barre latérale rétractable */
-        #sidebar {
-            width: 280px;
-            background: #0b1712;
-            border-right: 1px solid rgba(212, 163, 115, 0.2);
-            display: flex;
-            flex-direction: column;
-            transition: transform 0.3s ease, width 0.3s ease;
-            z-index: 100;
-        }
-
-        #sidebar.closed {
-            transform: translateX(-100%);
-            width: 0;
-            overflow: hidden;
-            border-right: none;
-        }

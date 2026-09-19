@@ -184,13 +184,22 @@
             border-right: 1px solid rgba(212, 163, 115, 0.2);
             display: flex;
             flex-direction: column;
-            transition: transform 0.3s ease;
+            transition: transform 0.3s ease, width 0.3s ease;
             z-index: 100;
+            overflow: hidden;
+        }
+
+        /* Classe pour masquer la sidebar en douceur */
+        #sidebar.closed {
+            transform: translateX(-100%);
+            width: 0;
+            border-right: none;
         }
 
         .sidebar-header {
             padding: 15px;
             border-bottom: 1px solid rgba(212, 163, 115, 0.15);
+            min-width: 280px; /* Pour éviter que le contenu ne se déforme lors de l'animation */
         }
 
         .btn-nouvelle-chat {
@@ -219,6 +228,7 @@
             flex: 1;
             overflow-y: auto;
             padding: 10px;
+            min-width: 280px;
         }
 
         .history-item {
@@ -308,10 +318,14 @@
 
     <!-- APPLICATION PRINCIPALE -->
     <div id="app-container">
-        <header>
-            <div id="header-content">
-                <h1 data-translate="appTitle">🌍 IA en Fon</h1>
-                <p id="sous-titre" data-translate="appSubtitle">Parle avec l’IA dans ta langue natale</p>
+        <header style="display: flex; justify-content: space-between; align-items: center; padding: 15px 20px; background: #0b1712; border-bottom: 1px solid rgba(212, 163, 115, 0.2);">
+            <div id="header-content" style="display: flex; align-items: center; gap: 15px;">
+                <!-- Bouton pour ouvrir/fermer la sidebar -->
+                <button id="btn-toggle-sidebar" class="btn-toggle" aria-label="Menu" style="background: none; border: none; color: #fefae0; font-size: 1.4rem; cursor: pointer;">☰</button>
+                <div>
+                    <h1 data-translate="appTitle" style="font-size: 1.3rem; color: #fefae0;">🌍 IA en Fon</h1>
+                    <p id="sous-titre" data-translate="appSubtitle" style="font-size: 0.8rem; color: #d8f3dc;">Parle avec l’IA dans ta langue natale</p>
+                </div>
             </div>
             <div id="langue-switch">
                 <button class="btn-langue active" data-lang="fr">Français</button>
@@ -334,9 +348,9 @@
 
             <!-- ESPACE DE TRAVAIL PRINCIPAL -->
             <div class="main-workspace">
-                <main>
+                <main style="padding: 20px; flex: 1;">
                     <!-- SECTION CLAVIER FON -->
-                    <section id="section-clavier">
+                    <section id="section-clavier" style="margin-bottom: 30px;">
                         <h2 data-translate="keyboardTitle">⌨️ Clavier Fon</h2>
                         <p class="aide" data-translate="keyboardHelp">Clique sur les lettres pour écrire en Fon</p>
 
@@ -394,7 +408,7 @@
                     </section>
                 </main>
 
-                <footer>
+                <footer style="text-align: center; padding: 15px; background: #0b1712; color: #d8f3dc; font-size: 0.85rem;">
                     <p data-translate="footerText">Projet IA & Clavier Fon -- Salem MAHOUTIN -- ENS Natitingou</p>
                 </footer>
             </div>
@@ -461,6 +475,12 @@
                 const lang = e.target.getAttribute('data-lang');
                 setLanguage(lang);
             });
+        });
+
+        // Gestion du bouton Menu (Sidebar Toggle)
+        document.getElementById('btn-toggle-sidebar').addEventListener('click', () => {
+            const sidebar = document.getElementById('sidebar');
+            sidebar.classList.toggle('closed');
         });
 
         // Gestion de la persistance de session Google
