@@ -4,7 +4,7 @@ export default async function handler(req, res) {
     }
 
     try {
-        const { contents, systemInstruction } = req.body;
+    const { contents, system_instruction } = req.body;
         const apiKey = process.env.GEMINI_API_KEY;
 
         if (!apiKey) {
@@ -12,15 +12,14 @@ export default async function handler(req, res) {
         }
 
         // Utilisation directe de l'API REST de Gemini (compatible à 100% avec Vercel)
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
-
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
         const payload = {
             contents: contents
         };
 
-        if (systemInstruction) {
-            payload.system_instruction = systemInstruction;
-        }
+        if (system_instruction) {
+    payload.system_instruction = system_instruction;
+}
 
         const apiResponse = await fetch(url, {
             method: 'POST',
