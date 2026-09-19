@@ -12,7 +12,7 @@ export default async function handler(req, res) {
         }
 
         // Utilisation directe de l'API REST de Gemini (compatible à 100% avec Vercel)
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash-latest:generateContent?key=${apiKey}`;
         const payload = {
             contents: contents
         };
