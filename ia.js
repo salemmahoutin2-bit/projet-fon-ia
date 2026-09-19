@@ -3,16 +3,14 @@
    Fichier : ia.js
 ================================================ */
 
-// CONFIGURATION DYNAMIQUE DE L'IA SELON LA LANGUE CHOISIE
 function obtenirSystemInstruction() {
     const langActive = localStorage.getItem('preferred_lang') || 'fr';
-    
     if (langActive === 'fon') {
         return `Tu es un assistant IA spécialisé et exclusif pour la langue Fon (Bénin).
 Règles strictes :
 - Tu dois communiquer UNIQUEMENT en langue Fon (Fɔngbè).
 - Ne réponds jamais en français lorsque le mode Fon est actif, sauf si l'utilisateur te demande explicitement une traduction.
-- Sois chaleureux, patient et utile pour toutes les questions (quotidien, agriculture, culture, éducation).`;
+- Sois chaleureux, patient et utile pour toutes les questions.`;
     } else {
         return `Tu es un assistant IA spécialisé pour les locuteurs de la langue Fon (Bénin, Afrique de l'Ouest).
 Règles importantes :
@@ -29,12 +27,45 @@ const chargement = document.getElementById('chargement');
 const btnMicro = document.getElementById('btn-micro');
 const btnEnvoyerIa = document.getElementById('btn-envoyer-ia');
 const texteFon = document.getElementById('texte-fon');
-const btnEffacerHistorique = document.getElementById('btn-effacer-historique');
+const sidebarHistoryList = document.getElementById('sidebar-history-list');
+const btnNouveauChat = document.getElementById('btn-nouveau-chat');
 
-// Historique de la conversation (Chargé depuis localStorage s'il existe)
-let historique = JSON.parse(localStorage.getItem('chat_history')) || [];
+// Gestion des conversations multiples (Stockées dans localStorage)
+let listeConversations = JSON.parse(localStorage.getItem('gemini_fon_conversations')) || [];
+let conversationActuelleId = localStorage.getItem('gemini_fon_current_id') || null;
 
-// Fonction : afficher un message dans le chat
+// Initialisation d'une session si aucune n'existe
+if (listeConversations.length === 0) {
+    creerNouvelleConversation(false);
+} else if (!conversationActuelleId || !listeConversations.find(c => c.id === conversationActuelleId)) {
+    conversationActuelleId = listeConversations[0].id;
+}
+
+function recupererConversationActive() {
+    return listeConversations.find(c => c.id === conversationActuelleId);
+}
+
+function creerNouvelleConversation(rafraichirAffichage = true) {
+    const nouvelleConv = {
+        id: 'chat_' + Date.now(),
+        titre: localStorage.getItem('preferred_lang') === 'fon' ? 'Nùɖɔɖó yɔyɔ̀' : 'Nouvelle discussion',
+        messages: []
+    };
+    listeConversations.unshift(nouvelleConv);
+    conversationActuelleId = nouvelleConv.id;
+    sauvegarderSessions();
+    if (rafraichirAffichage) {
+        chargerInterfaceConversationActive();
+        afficherSidebarHistorique();
+    }
+}
+
+function sauvegarderSessions() {
+    localStorage.setItem('gemini_fon_conversations', JSON.stringify(listeConversations));
+    localStorage.setItem('gemini_fon_current_id', conversationActuelleId);
+}
+
+// Affichage d'un message dans la zone de chat
 function afficherMessage(texte, auteur) {
     const divMessage = document.createElement('div');
     divMessage.className = 'message ' + (auteur === 'user' ? 'msg-user' : 'msg-ia');
@@ -56,17 +87,19 @@ function afficherMessage(texte, auteur) {
     zoneMessages.scrollTop = zoneMessages.scrollHeight;
 }
 
-// Charger l'historique existant au démarrage
-function chargerHistoriqueInterface() {
+// Charger l'interface de la discussion sélectionnée
+function chargerInterfaceConversationActive() {
     zoneMessages.innerHTML = '';
-    if (historique.length === 0) {
+    const conv = recupererConversationActive();
+    if (!conv || conv.messages.length === 0) {
         afficherMessageParDefaut();
     } else {
-        historique.forEach(msg => {
+        conv.messages.forEach(msg => {
             const auteur = (msg.role === 'user') ? 'user' : 'ia';
             afficherMessage(msg.parts[0].text, auteur);
         });
     }
+    afficherSidebarHistorique();
 }
 
 function afficherMessageParDefaut() {
@@ -77,14 +110,61 @@ function afficherMessageParDefaut() {
     afficherMessage(msgAccueil, 'ia');
 }
 
-function mettreAJourMessageBienvenue(lang) {
-    if (historique.length === 0) {
-        zoneMessages.innerHTML = '';
-        afficherMessageParDefaut();
-    }
+// Afficher la liste des discussions dans la barre latérale (Style Gemini)
+function afficherSidebarHistorique() {
+    if (!sidebarHistoryList) return;
+    sidebarHistoryList.innerHTML = '';
+
+    listeConversations.forEach(conv => {
+        const item = document.createElement('div');
+        item.className = 'history-item ' + (conv.id === conversationActuelleId ? 'active' : '');
+        
+        const titreSpan = document.createElement('span');
+        titreSpan.style.flex = '1';
+        titreSpan.style.overflow = 'hidden';
+        titreSpan.style.textOverflow = 'ellipsis';
+        titreSpan.textContent = conv.titre;
+
+        const btnSupprimer = document.createElement('button');
+        btnSupprimer.className = 'btn-supprimer-chat';
+        btnSupprimer.textContent = '✕';
+        btnSupprimer.title = "Supprimer cette discussion";
+        btnSupprimer.addEventListener('click', (e) => {
+            e.stopPropagation();
+            supprimerConversation(conv.id);
+        });
+
+        item.appendChild(titreSpan);
+        item.appendChild(btnSupprimer);
+
+        item.addEventListener('click', () => {
+            conversationActuelleId = conv.id;
+            sauvegarderSessions();
+            chargerInterfaceConversationActive();
+        });
+
+        sidebarHistoryList.appendChild(item);
+    });
 }
 
-// Fonction : afficher / masquer le chargement
+function supprimerConversation(id) {
+    listeConversations = listeConversations.filter(c => c.id !== id);
+    if (listeConversations.length === 0) {
+        creerNouvelleConversation(false);
+    } else if (conversationActuelleId === id) {
+        conversationActuelleId = listeConversations[0].id;
+    }
+    sauvegarderSessions();
+    chargerInterfaceConversationActive();
+}
+
+// Bouton Nouvelle discussion
+if (btnNouveauChat) {
+    btnNouveauChat.addEventListener('click', () => {
+        creerNouvelleConversation(true);
+    });
+}
+
 function setChargement(actif) {
     if (chargement) chargement.hidden = !actif;
     if (btnEnvoyer) btnEnvoyer.disabled = actif;
@@ -92,13 +172,24 @@ function setChargement(actif) {
     if (btnMicro) btnMicro.disabled = actif;
 }
 
-// Fonction principale : envoyer un message via le serveur Vercel
+// Envoi d'un message
 async function envoyerMessage(texteForce = null) {
     const texte = texteForce || champSaisie.value.trim();
 
     if (!texte) {
         if (!texteForce && champSaisie) champSaisie.focus();
         return;
+    }
+
+    let conv = recupererConversationActive();
+    if (!conv) {
+        creerNouvelleConversation(false);
+        conv = recupererConversationActive();
+    }
+
+    // Si c'est le premier message, on renomme le titre du fil avec le texte de l'utilisateur (limité à 30 caractères)
+    if (conv.messages.length === 0) {
+        conv.titre = texte.length > 30 ? texte.substring(0, 30) + '...' : texte;
     }
 
     afficherMessage(texte, 'user');
@@ -108,11 +199,12 @@ async function envoyerMessage(texteForce = null) {
         champSaisie.style.height = 'auto';
     }
 
-    historique.push({
+    conv.messages.push({
         role: 'user',
         parts: [{ text: texte }]
     });
-    sauvegarderHistorique();
+    sauvegarderSessions();
+    afficherSidebarHistorique();
 
     setChargement(true);
 
@@ -126,7 +218,7 @@ async function envoyerMessage(texteForce = null) {
                 system_instruction: {
                     parts: [{ text: obtenirSystemInstruction() }]
                 },
-                contents: historique
+                contents: conv.messages
             })
         });
 
@@ -141,14 +233,14 @@ async function envoyerMessage(texteForce = null) {
 
         afficherMessage(texteIA, 'ia');
 
-        historique.push({
+        conv.messages.push({
             role: 'model',
             parts: [{ text: texteIA }]
         });
-        sauvegarderHistorique();
+        sauvegarderSessions();
 
-        if (historique.length > 30) {
-            historique = historique.slice(-30);
+        if (conv.messages.length > 35) {
+            conv.messages = conv.messages.slice(-35);
         }
 
     } catch (erreur) {
@@ -156,27 +248,11 @@ async function envoyerMessage(texteForce = null) {
         const langActive = localStorage.getItem('preferred_lang') || 'fr';
         const msgErreur = (langActive === 'fon') ? "Nǔɖé bléwun wɛ jɛ, Kɛ́n mɛ." : "Désolé, une erreur est survenue lors de la communication avec le serveur.";
         afficherMessage(msgErreur, 'ia');
-        historique.pop();
+        conv.messages.pop();
     }
 
     setChargement(false);
     if (champSaisie) champSaisie.focus();
-}
-
-function sauvegarderHistorique() {
-    localStorage.setItem('chat_history', JSON.stringify(historique));
-}
-
-// Bouton pour effacer l'historique
-if (btnEffacerHistorique) {
-    btnEffacerHistorique.addEventListener('click', () => {
-        if (confirm("Voulez-vous vraiment effacer l'historique des conversations ?")) {
-            historique = [];
-            localStorage.removeItem('chat_history');
-            zoneMessages.innerHTML = '';
-            afficherMessageParDefaut();
-        }
-    });
 }
 
 // Reconnaissance vocale (STT)
@@ -227,7 +303,6 @@ if (SpeechRecognition) {
     if (btnMicro) btnMicro.style.display = 'none';
 }
 
-// Événements clavier / chat
 if (btnEnvoyer) {
     btnEnvoyer.addEventListener('click', () => envoyerMessage());
 }
@@ -258,7 +333,7 @@ if (btnEnvoyerIa && texteFon) {
     });
 }
 
-// Initialisation de l'affichage de l'historique au chargement de la page
+// Au chargement de la page
 document.addEventListener("DOMContentLoaded", () => {
-    chargerHistoriqueInterface();
+    chargerInterfaceConversationActive();
 });
