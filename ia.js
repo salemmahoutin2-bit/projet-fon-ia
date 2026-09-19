@@ -18,6 +18,41 @@ Règles strictes :
 - Sois chaleureux, poli, et utilise un vocabulaire correct en Fon.`
 };
 
+// ==========================================
+// DICTIONNAIRE DE TRADUCTION DE L'INTERFACE
+// ==========================================
+const dicoInterface = {
+    fr: {
+        placeholder_saisie: "Écrivez votre message ici...",
+        btn_envoyer: "Envoyer",
+        titre_app: "Assistant IA - Projet Fon"
+    },
+    fon: {
+        placeholder_saisie: "Wlǎn wɛn towe ɖò fi...",
+        btn_envoyer: "Mi sɛ́",
+        titre_app: "Alɔgɔtɔ́ fɔngbè tɔn"
+    }
+};
+
+// Fonction pour appliquer la langue sur toute l'interface
+function appliquerLangueInterface(lang) {
+    const textes = dicoInterface[lang] || dicoInterface.fr;
+
+    // Traduire le placeholder du champ de saisie
+    if (champSaisie && textes.placeholder_saisie) {
+        champSaisie.placeholder = textes.placeholder_saisie;
+    }
+
+    // Traduire le bouton envoyer s'il contient du texte direct
+    if (btnEnvoyer && textes.btn_envoyer) {
+        // Si le bouton utilise du texte ou un attribut data-i18n
+        btnEnvoyer.textContent = textes.btn_envoyer;
+    }
+
+    // Sauvegarder la préférence de langue
+    localStorage.setItem('langue_interface', lang);
+}
+
 // Éléments du DOM
 const zoneMessages = document.getElementById('messages');
 const champSaisie = document.getElementById('saisie-message');
@@ -27,6 +62,12 @@ const btnMicro = document.getElementById('btn-micro'); // Bouton microphone
 
 // Historique de la conversation (chargé depuis le localStorage si existant)
 let historique = JSON.parse(localStorage.getItem('chat_api_history')) || [];
+
+// Restauration de la langue enregistrée au chargement de la page
+document.addEventListener('DOMContentLoaded', () => {
+    const langueEnregistree = localStorage.getItem('langue_interface') || 'fr';
+    appliquerLangueInterface(langueEnregistree);
+});
 
 // Fonction : afficher un message dans le chat
 function afficherMessage(texte, auteur) {
@@ -69,7 +110,7 @@ async function envoyerMessage() {
 
     // Récupérer la langue active actuelle (depuis le bouton actif dans le HTML)
     const btnLangueActive = document.querySelector('.btn-langue.active');
-    const langActuelle = btnLangueActive ? btnLangueActive.getAttribute('data-lang') : 'fr';
+    const langActuelle = btnLangueActive ? btnLangueActive.getAttribute('data-lang') : (localStorage.getItem('langue_interface') || 'fr');
     
     // Déterminer la consigne système selon la langue choisie
     const promptSystemeActuel = langActuelle === 'fon' ? CONFIG.SYSTEME_FON : CONFIG.SYSTEME_FR;
@@ -89,7 +130,7 @@ async function envoyerMessage() {
     setChargement(true);
 
     try {
-        // 4. Appel au serveur relais interne Vercel (/api/chat.js) avec le format corrigé
+        // 4. Appel au serveur relais interne Vercel (/api/chat.js)
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: {
@@ -138,6 +179,25 @@ async function envoyerMessage() {
     setChargement(false);
     champSaisie.focus();
 }
+
+// ==========================================
+// GESTION DES BOUTONS DE LANGUE (UI & IA)
+// ==========================================
+const boutonsLangue = document.querySelectorAll('.btn-langue');
+boutonsLangue.forEach(btn => {
+    btn.addEventListener('click', (e) => {
+        // Retirer la classe active de tous les boutons
+        boutonsLangue.forEach(b => b.classList.remove('active'));
+        // Activer le bouton cliqué
+        const boutonCible = e.currentTarget;
+        boutonCible.classList.add('active');
+
+        const lang = boutonCible.getAttribute('data-lang'); // 'fr' ou 'fon'
+        if (lang) {
+            appliquerLangueInterface(lang);
+        }
+    });
+});
 
 // ==========================================
 // INTÉGRATION DE LA RECONNAISSANCE VOCALE (STT)
