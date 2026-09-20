@@ -3,7 +3,6 @@
    Fichier : ia.js
 ================================================ */
 
-// CONFIGURATION DYNAMIQUE DE L'IA SELON LA LANGUE CHOISIE
 function obtenirSystemInstruction() {
     return {
         parts: [{
@@ -24,59 +23,92 @@ Autres règles :
 }
 
 // Éléments du DOM
-const zoneMessages = document.getElementById('messages');
-const champSaisie = document.getElementById('saisie-message');
-const btnEnvoyer = document.getElementById('btn-envoyer');
-const chargement = document.getElementById('chargement');
-const btnMicro = document.getElementById('btn-micro');
-const btnEnvoyerIa = document.getElementById('btn-envoyer-ia');
-const texteFon = document.getElementById('texte-fon');
-const btnEffacerHistorique = document.getElementById('btn-effacer-historique');
+const zoneMessages   = document.getElementById('messages');
+const champSaisie    = document.getElementById('saisie-message');
+const btnEnvoyer     = document.getElementById('btn-envoyer');
+const chargement     = document.getElementById('chargement');
+const btnMicro       = document.getElementById('btn-micro');
+const btnEnvoyerIa   = document.getElementById('btn-envoyer-ia');
+const texteFon       = document.getElementById('texte-fon');
+const btnEffacerHist = document.getElementById('btn-effacer-historique');
 
-// Historique de la conversation (Chargé depuis localStorage s'il existe)
 let historique = JSON.parse(localStorage.getItem('chat_history')) || [];
 
-// Fonction : afficher un message dans le chat
+/* ── Horodatage ── */
+function obtenirHeure() {
+    return new Date().toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+}
+
+/* ── Afficher un message ── */
 function afficherMessage(texte, auteur) {
     const divMessage = document.createElement('div');
     divMessage.className = 'message ' + (auteur === 'user' ? 'msg-user' : 'msg-ia');
 
+    // Avatar
+    const avatar = document.createElement('div');
     if (auteur === 'ia') {
-        const avatar = document.createElement('span');
         avatar.className = 'avatar-ia';
-        avatar.textContent = 'IA';
-        divMessage.appendChild(avatar);
+        avatar.textContent = '🤖';
+    } else {
+        avatar.className = 'avatar-user';
+        avatar.textContent = '👤';
     }
+    divMessage.appendChild(avatar);
 
+    // Bulle + horodatage
     const bulle = document.createElement('div');
     bulle.className = 'bulle';
     bulle.innerHTML = texte.replace(/\n/g, '<br>');
 
+    const meta = document.createElement('div');
+    meta.className = 'bulle-meta';
+    meta.textContent = obtenirHeure();
+    bulle.appendChild(meta);
+
     divMessage.appendChild(bulle);
     zoneMessages.appendChild(divMessage);
-
     zoneMessages.scrollTop = zoneMessages.scrollHeight;
 }
 
-// Charger l'historique existant au démarrage
+/* ── Skeleton loading ── */
+function afficherSkeleton() {
+    const div = document.createElement('div');
+    div.className = 'skeleton-msg';
+    div.id = 'skeleton-loading';
+    div.innerHTML = `
+        <div class="avatar-ia">🤖</div>
+        <div class="skeleton-bulle">
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+            <div class="skeleton-line"></div>
+        </div>`;
+    zoneMessages.appendChild(div);
+    zoneMessages.scrollTop = zoneMessages.scrollHeight;
+}
+
+function supprimerSkeleton() {
+    const sk = document.getElementById('skeleton-loading');
+    if (sk) sk.remove();
+}
+
+/* ── Charger historique ── */
 function chargerHistoriqueInterface() {
     zoneMessages.innerHTML = '';
     if (historique.length === 0) {
         afficherMessageParDefaut();
     } else {
         historique.forEach(msg => {
-            const auteur = (msg.role === 'user') ? 'user' : 'ia';
-            afficherMessage(msg.parts[0].text, auteur);
+            afficherMessage(msg.parts[0].text, msg.role === 'user' ? 'user' : 'ia');
         });
     }
 }
 
 function afficherMessageParDefaut() {
-    const langActive = localStorage.getItem('preferred_lang') || 'fr';
-    const msgAccueil = (langActive === 'fon')
-        ? "Bɔ̀! Un nyí alɔgɔ́tɔ́ towě. Un sixu ɖɔ xó ɖò Fɔngbè mɛ. Zán wěwlan-gbá ɔ ɖò aga ɖò fi alǒ wlan ɖò fi."
-        : "Bonjour ! Je suis ton assistant IA. Écris-moi en Fon ou en français, je détecte automatiquement ta langue et je réponds dans la même langue.";
-    afficherMessage(msgAccueil, 'ia');
+    const lang = localStorage.getItem('preferred_lang') || 'fr';
+    const msg = lang === 'fon'
+        ? "Bɔ̀! Un nyí alɔgɔ́tɔ́ towě. Un sixu ɖɔ xó ɖò Fɔngbè mɛ."
+        : "Bonjour ! Je suis ton assistant IA. Écris en Fon ou en français, je détecte automatiquement ta langue.";
+    afficherMessage(msg, 'ia');
 }
 
 function mettreAJourMessageBienvenue(lang) {
@@ -86,18 +118,21 @@ function mettreAJourMessageBienvenue(lang) {
     }
 }
 
-// Fonction : afficher / masquer le chargement
+/* ── Chargement ── */
 function setChargement(actif) {
-    if (chargement) chargement.hidden = !actif;
-    if (btnEnvoyer) btnEnvoyer.disabled = actif;
+    if (actif) {
+        afficherSkeleton();
+    } else {
+        supprimerSkeleton();
+    }
+    if (btnEnvoyer)  btnEnvoyer.disabled  = actif;
     if (champSaisie) champSaisie.disabled = actif;
-    if (btnMicro) btnMicro.disabled = actif;
+    if (btnMicro)    btnMicro.disabled    = actif;
 }
 
-// Fonction principale : envoyer un message via le serveur Vercel
+/* ── Envoyer message ── */
 async function envoyerMessage(texteForce = null) {
-    const texte = texteForce || champSaisie.value.trim();
-
+    const texte = texteForce || champSaisie?.value.trim();
     if (!texte) {
         if (!texteForce && champSaisie) champSaisie.focus();
         return;
@@ -110,20 +145,14 @@ async function envoyerMessage(texteForce = null) {
         champSaisie.style.height = 'auto';
     }
 
-    historique.push({
-        role: 'user',
-        parts: [{ text: texte }]
-    });
+    historique.push({ role: 'user', parts: [{ text: texte }] });
     sauvegarderHistorique();
-
     setChargement(true);
 
     try {
         const response = await fetch('/api/chat', {
             method: 'POST',
-            headers: {
-                'Content-Type': 'application/json'
-            },
+            headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 system_instruction: obtenirSystemInstruction(),
                 contents: historique
@@ -132,36 +161,25 @@ async function envoyerMessage(texteForce = null) {
 
         const donnees = await response.json();
 
-        if (!response.ok) {
-            console.error('Erreur Serveur Vercel:', donnees);
-            throw new Error(donnees.error || `Erreur HTTP ${response.status}`);
-        }
-
-        if (!donnees.candidates || donnees.candidates.length === 0) {
-            throw new Error("L'IA n'a retourné aucune réponse.");
-        }
+        if (!response.ok) throw new Error(donnees.error || `Erreur HTTP ${response.status}`);
+        if (!donnees.candidates?.length) throw new Error("Aucune réponse de l'IA.");
 
         const texteIA = donnees.candidates[0].content.parts[0].text;
-
         afficherMessage(texteIA, 'ia');
 
-        historique.push({
-            role: 'model',
-            parts: [{ text: texteIA }]
-        });
+        historique.push({ role: 'model', parts: [{ text: texteIA }] });
         sauvegarderHistorique();
-
-        if (historique.length > 30) {
-            historique = historique.slice(-30);
-        }
+        if (historique.length > 30) historique = historique.slice(-30);
 
     } catch (erreur) {
-        console.error('Erreur IA :', erreur);
-        const langActive = localStorage.getItem('preferred_lang') || 'fr';
-        const msgErreur = (langActive === 'fon')
-            ? "Nǔɖé bléwun wɛ jɛ, Kɛ́n mɛ."
-            : "Désolé, une erreur est survenue lors de la communication avec le serveur.";
-        afficherMessage(msgErreur, 'ia');
+        console.error('Erreur IA:', erreur);
+        const lang = localStorage.getItem('preferred_lang') || 'fr';
+        afficherMessage(
+            lang === 'fon'
+                ? "Nǔɖé bléwun wɛ jɛ, Kɛ́n mɛ."
+                : "Désolé, une erreur est survenue lors de la communication avec le serveur.",
+            'ia'
+        );
         historique.pop();
     }
 
@@ -173,10 +191,10 @@ function sauvegarderHistorique() {
     localStorage.setItem('chat_history', JSON.stringify(historique));
 }
 
-// Bouton pour effacer l'historique
-if (btnEffacerHistorique) {
-    btnEffacerHistorique.addEventListener('click', () => {
-        if (confirm("Voulez-vous vraiment effacer l'historique des conversations ?")) {
+/* ── Effacer historique ── */
+if (btnEffacerHist) {
+    btnEffacerHist.addEventListener('click', () => {
+        if (confirm("Voulez-vous vraiment effacer l'historique ?")) {
             historique = [];
             localStorage.removeItem('chat_history');
             zoneMessages.innerHTML = '';
@@ -185,9 +203,8 @@ if (btnEffacerHistorique) {
     });
 }
 
-// Reconnaissance vocale (STT)
+/* ── Reconnaissance vocale ── */
 const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
-
 if (SpeechRecognition) {
     const recognition = new SpeechRecognition();
     recognition.lang = 'fr-FR';
@@ -195,57 +212,33 @@ if (SpeechRecognition) {
 
     if (btnMicro) {
         btnMicro.addEventListener('click', () => {
-            try {
-                recognition.start();
-                btnMicro.style.background = '#e76f51';
-                btnMicro.title = "Écoute en cours...";
-            } catch (e) {
-                console.error("Erreur démarrage micro:", e);
-            }
+            try { recognition.start(); btnMicro.style.background = '#e76f51'; }
+            catch (e) { console.error(e); }
         });
     }
 
-    recognition.onresult = function(event) {
-        const texteTranscription = event.results[0][0].transcript;
+    recognition.onresult = e => {
         if (champSaisie) {
-            champSaisie.value = texteTranscription;
+            champSaisie.value = e.results[0][0].transcript;
             champSaisie.style.height = 'auto';
             champSaisie.style.height = Math.min(champSaisie.scrollHeight, 120) + 'px';
         }
     };
 
-    recognition.onerror = function(event) {
-        console.error("Erreur de reconnaissance vocale :", event.error);
-        reinitialiserBoutonMicro();
+    recognition.onerror = recognition.onend = () => {
+        if (btnMicro) { btnMicro.style.background = '#d4a373'; btnMicro.title = "Parler"; }
     };
-
-    recognition.onend = function() {
-        reinitialiserBoutonMicro();
-    };
-
-    function reinitialiserBoutonMicro() {
-        if (btnMicro) {
-            btnMicro.style.background = '#d4a373';
-            btnMicro.title = "Parler";
-        }
-    }
 } else {
     if (btnMicro) btnMicro.style.display = 'none';
 }
 
-// Événements clavier / chat
-if (btnEnvoyer) {
-    btnEnvoyer.addEventListener('click', () => envoyerMessage());
-}
+/* ── Événements ── */
+if (btnEnvoyer) btnEnvoyer.addEventListener('click', () => envoyerMessage());
 
 if (champSaisie) {
-    champSaisie.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter' && !e.shiftKey) {
-            e.preventDefault();
-            envoyerMessage();
-        }
+    champSaisie.addEventListener('keydown', e => {
+        if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); envoyerMessage(); }
     });
-
     champSaisie.addEventListener('input', function () {
         this.style.height = 'auto';
         this.style.height = Math.min(this.scrollHeight, 120) + 'px';
@@ -254,17 +247,11 @@ if (champSaisie) {
 
 if (btnEnvoyerIa && texteFon) {
     btnEnvoyerIa.addEventListener('click', () => {
-        const texteClavier = texteFon.value.trim();
-        if (!texteClavier) {
-            alert("Le champ du clavier Fon est vide !");
-            return;
-        }
-        envoyerMessage(texteClavier);
+        const t = texteFon.value.trim();
+        if (!t) { alert("Le champ du clavier Fon est vide !"); return; }
+        envoyerMessage(t);
         texteFon.value = '';
     });
 }
 
-// Initialisation de l'affichage de l'historique au chargement de la page
-document.addEventListener("DOMContentLoaded", () => {
-    chargerHistoriqueInterface();
-});
+document.addEventListener("DOMContentLoaded", () => chargerHistoriqueInterface());

@@ -381,6 +381,9 @@
                     <p id="sous-titre" data-translate="appSubtitle">Parle avec l'IA dans ta langue natale</p>
                 </div>
             </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <button id="btn-theme" onclick="toggleTheme()" title="Changer le thème">🌙</button>
+            </div>
             <!-- langue-switch caché (géré via sidebar) -->
             <div id="langue-switch" style="display:none;">
                 <button class="btn-langue active" data-lang="fr">Français</button>
@@ -391,9 +394,13 @@
         <main>
             <!-- SECTION CLAVIER FON -->
             <section id="section-clavier">
-                <h2 data-translate="keyboardTitle">⌨️ Clavier Fon</h2>
+                <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:6px;">
+                    <h2 data-translate="keyboardTitle" style="margin-bottom:0;">⌨️ Clavier Fon</h2>
+                    <button id="clavier-toggle-btn" onclick="toggleClavier()">▲ Masquer</button>
+                </div>
                 <p class="aide" data-translate="keyboardHelp">Clique sur les lettres pour écrire en Fon</p>
 
+                <div id="clavier-body">
                 <textarea
                     id="texte-fon"
                     rows="3"
@@ -409,6 +416,7 @@
                 </div>
 
                 <div id="clavier-container"></div>
+                </div><!-- fin clavier-body -->
             </section>
 
             <!-- SECTION CHAT IA -->
@@ -515,13 +523,53 @@
         });
     </script>
     <script>
+        /* ── Sidebar + Swipe ── */
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
+        const hamburger = document.getElementById('btn-hamburger');
+
         function toggleSidebar() {
-            const sidebar = document.getElementById('sidebar');
-            const overlay = document.getElementById('sidebar-overlay');
             sidebar.classList.toggle('open');
             overlay.classList.toggle('visible');
+            hamburger.classList.toggle('hamburger-open');
         }
 
+        // Swipe gesture pour ouvrir/fermer la sidebar
+        let touchStartX = 0;
+        document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
+        document.addEventListener('touchend', e => {
+            const dx = e.changedTouches[0].clientX - touchStartX;
+            if (dx > 60 && touchStartX < 40) toggleSidebar();          // swipe droite → ouvrir
+            if (dx < -60 && sidebar.classList.contains('open')) toggleSidebar(); // swipe gauche → fermer
+        }, { passive: true });
+
+        /* ── Thème sombre/clair ── */
+        const btnTheme = document.getElementById('btn-theme');
+        function toggleTheme() {
+            document.body.classList.toggle('dark');
+            const isDark = document.body.classList.contains('dark');
+            localStorage.setItem('theme', isDark ? 'dark' : 'light');
+            btnTheme.textContent = isDark ? '☀️' : '🌙';
+        }
+
+        // Appliquer le thème sauvegardé
+        (function() {
+            const saved = localStorage.getItem('theme');
+            if (saved === 'dark') {
+                document.body.classList.add('dark');
+                if (btnTheme) btnTheme.textContent = '☀️';
+            }
+        })();
+
+        /* ── Toggle clavier ── */
+        function toggleClavier() {
+            const body = document.getElementById('clavier-body');
+            const btn  = document.getElementById('clavier-toggle-btn');
+            body.classList.toggle('ferme');
+            btn.textContent = body.classList.contains('ferme') ? '▼ Afficher clavier' : '▲ Masquer';
+        }
+
+        /* ── Effacer historique ── */
         function effacerHistorique() {
             if (confirm("Voulez-vous vraiment effacer l'historique des conversations ?")) {
                 localStorage.removeItem('chat_history');
@@ -529,6 +577,15 @@
                 if (typeof afficherMessageParDefaut === 'function') afficherMessageParDefaut();
                 toggleSidebar();
             }
+        }
+
+        /* ── Langue via sidebar ── */
+        function setLanguage(lang) {
+            localStorage.setItem('preferred_lang', lang);
+            document.querySelectorAll('.btn-langue').forEach(b => {
+                b.classList.toggle('active', b.dataset.lang === lang);
+            });
+            if (typeof mettreAJourMessageBienvenue === 'function') mettreAJourMessageBienvenue(lang);
         }
     </script>
 </body>
