@@ -334,10 +334,52 @@
          APPLICATION PRINCIPALE
     ══════════════════════════════════════ -->
     <div id="app-container">
+
+    <!-- ══ OVERLAY SIDEBAR ══ -->
+    <div id="sidebar-overlay" onclick="toggleSidebar()"></div>
+
+    <!-- ══ SIDEBAR MENU ══ -->
+    <nav id="sidebar">
+        <div id="sidebar-header">
+            <span>⚙️ Menu</span>
+            <button id="btn-fermer-sidebar" onclick="toggleSidebar()" aria-label="Fermer">✕</button>
+        </div>
+
+        <div class="sidebar-section">
+            <p class="sidebar-titre">🌐 Langue</p>
+            <button class="sidebar-btn" onclick="setLanguage('fr'); toggleSidebar()">🇫🇷 Français</button>
+            <button class="sidebar-btn" onclick="setLanguage('fon'); toggleSidebar()">🇧🇯 Fɔngbè</button>
+        </div>
+
+        <div class="sidebar-section">
+            <p class="sidebar-titre">💬 Historique</p>
+            <button class="sidebar-btn danger" onclick="effacerHistorique()">🗑️ Effacer l'historique</button>
+        </div>
+
+        <div class="sidebar-section">
+            <p class="sidebar-titre">ℹ️ À propos</p>
+            <div class="sidebar-info">
+                <p>📌 <strong>IA en Fon</strong></p>
+                <p>Développé par <strong>Salem MAHOUTIN</strong></p>
+                <p>ENS Natitingou — Bénin</p>
+                <p style="margin-top:8px; font-size:0.78rem; opacity:0.7;">Valoriser la langue Fon grâce à l'Intelligence Artificielle.</p>
+            </div>
+        </div>
+
+        <div class="sidebar-section">
+            <p class="sidebar-titre">🔐 Compte</p>
+            <button class="sidebar-btn danger" onclick="handleLogout(); toggleSidebar()">🚪 Déconnexion</button>
+        </div>
+    </nav>
         <header>
-            <div id="header-content">
-                <h1 data-translate="appTitle">🌍 IA en Fon</h1>
-                <p id="sous-titre" data-translate="appSubtitle">Parle avec l'IA dans ta langue natale</p>
+            <div style="display:flex; align-items:center; gap:12px;">
+                <button id="btn-hamburger" onclick="toggleSidebar()" aria-label="Menu">
+                    <span></span><span></span><span></span>
+                </button>
+                <div id="header-content">
+                    <h1 data-translate="appTitle">🌍 IA en Fon</h1>
+                    <p id="sous-titre" data-translate="appSubtitle">Parle avec l'IA dans ta langue natale</p>
+                </div>
             </div>
             <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
                 <span id="user-name"></span>
@@ -474,6 +516,23 @@
                 setLanguage(e.currentTarget.getAttribute('data-lang'));
             });
         });
+    </script>
+    <script>
+        function toggleSidebar() {
+            const sidebar = document.getElementById('sidebar');
+            const overlay = document.getElementById('sidebar-overlay');
+            sidebar.classList.toggle('open');
+            overlay.classList.toggle('visible');
+        }
+
+        function effacerHistorique() {
+            if (confirm("Voulez-vous vraiment effacer l'historique des conversations ?")) {
+                localStorage.removeItem('chat_history');
+                document.getElementById('messages').innerHTML = '';
+                if (typeof afficherMessageParDefaut === 'function') afficherMessageParDefaut();
+                toggleSidebar();
+            }
+        }
     </script>
 </body>
 </html>
