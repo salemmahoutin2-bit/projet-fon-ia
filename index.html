@@ -381,13 +381,10 @@
                     <p id="sous-titre" data-translate="appSubtitle">Parle avec l'IA dans ta langue natale</p>
                 </div>
             </div>
-            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
-                <span id="user-name"></span>
-                <div id="langue-switch">
-                    <button class="btn-langue active" data-lang="fr">Français</button>
-                    <button class="btn-langue" data-lang="fon">Fɔngbè</button>
-                </div>
-                <button id="btn-deconnexion" onclick="handleLogout()">Déconnexion</button>
+            <!-- langue-switch caché (géré via sidebar) -->
+            <div id="langue-switch" style="display:none;">
+                <button class="btn-langue active" data-lang="fr">Français</button>
+                <button class="btn-langue" data-lang="fon">Fɔngbè</button>
             </div>
         </header>
 
