@@ -6,18 +6,29 @@
 // CONFIGURATION DYNAMIQUE DE L'IA SELON LA LANGUE CHOISIE
 function obtenirSystemInstruction() {
     const langActive = localStorage.getItem('preferred_lang') || 'fr';
-    
+
     if (langActive === 'fon') {
-        return `Tu es un assistant IA spécialisé et exclusif pour la langue Fon (Bénin).
+        return {
+            parts: [{
+                text: `Tu es un assistant IA spécialisé pour la langue Fon (Bénin).
 Règles strictes :
-- Tu dois communiquer UNIQUEMENT en langue Fon (Fɔngbè).
-- Ne réponds jamais en français lorsque le mode Fon est actif, sauf si l'utilisateur te demande explicitement une traduction.
-- Sois chaleureux, patient et utile pour toutes les questions (quotidien, agriculture, culture, éducation).`;
+- Réponds TOUJOURS en deux parties bien séparées :
+  🇧🇯 Fon : ta réponse complète en Fɔngbè.
+  🇫🇷 Français : la traduction française de ta réponse.
+- Sois chaleureux, patient et utile pour toutes les questions (quotidien, agriculture, culture, éducation).`
+            }]
+        };
     } else {
-        return `Tu es un assistant IA spécialisé pour les locuteurs de la langue Fon (Bénin, Afrique de l'Ouest).
+        return {
+            parts: [{
+                text: `Tu es un assistant IA spécialisé pour les locuteurs de la langue Fon (Bénin, Afrique de l'Ouest).
 Règles importantes :
-- Si l'utilisateur écrit en français, réponds en français mais ajoute des mots ou expressions clés en Fon quand c'est utile.
-- Sois chaleureux, patient, et adapte-toi au niveau de l'utilisateur.`;
+- Réponds TOUJOURS en deux parties bien séparées :
+  🇫🇷 Français : ta réponse principale en français.
+  🇧🇯 Fon : la version en Fɔngbè de ta réponse.
+- Sois chaleureux, patient, et adapte-toi au niveau de l'utilisateur.`
+            }]
+        };
     }
 }
 
@@ -71,7 +82,7 @@ function chargerHistoriqueInterface() {
 
 function afficherMessageParDefaut() {
     const langActive = localStorage.getItem('preferred_lang') || 'fr';
-    const msgAccueil = (langActive === 'fon') 
+    const msgAccueil = (langActive === 'fon')
         ? "Bɔ̀! Un nyí alɔgɔ́tɔ́ towě. Un sixu ɖɔ xó ɖò Fɔngbè mɛ. Zán wěwlan-gbá ɔ ɖò aga ɖò fi alǒ wlan ɖò fi."
         : "Bonjour ! Je suis ton assistant IA. Je peux communiquer en Fon et en français. Utilise le clavier ci-dessus pour écrire en Fon, ou écris directement ici.";
     afficherMessage(msgAccueil, 'ia');
@@ -102,7 +113,7 @@ async function envoyerMessage(texteForce = null) {
     }
 
     afficherMessage(texte, 'user');
-    
+
     if (!texteForce && champSaisie) {
         champSaisie.value = '';
         champSaisie.style.height = 'auto';
@@ -123,9 +134,7 @@ async function envoyerMessage(texteForce = null) {
                 'Content-Type': 'application/json'
             },
             body: JSON.stringify({
-                system_instruction: {
-                    parts: [{ text: obtenirSystemInstruction() }]
-                },
+                system_instruction: obtenirSystemInstruction(),
                 contents: historique
             })
         });
@@ -134,7 +143,12 @@ async function envoyerMessage(texteForce = null) {
 
         if (!response.ok) {
             console.error('Erreur Serveur Vercel:', donnees);
-            throw new Error(donnees.error?.message || `Erreur HTTP ${response.status}`);
+            throw new Error(donnees.error || `Erreur HTTP ${response.status}`);
+        }
+
+        // Vérification que la réponse contient bien du contenu
+        if (!donnees.candidates || donnees.candidates.length === 0) {
+            throw new Error("L'IA n'a retourné aucune réponse.");
         }
 
         const texteIA = donnees.candidates[0].content.parts[0].text;
@@ -154,7 +168,9 @@ async function envoyerMessage(texteForce = null) {
     } catch (erreur) {
         console.error('Erreur IA :', erreur);
         const langActive = localStorage.getItem('preferred_lang') || 'fr';
-        const msgErreur = (langActive === 'fon') ? "Nǔɖé bléwun wɛ jɛ, Kɛ́n mɛ." : "Désolé, une erreur est survenue lors de la communication avec le serveur.";
+        const msgErreur = (langActive === 'fon')
+            ? "Nǔɖé bléwun wɛ jɛ, Kɛ́n mɛ."
+            : "Désolé, une erreur est survenue lors de la communication avec le serveur.";
         afficherMessage(msgErreur, 'ia');
         historique.pop();
     }
@@ -184,14 +200,14 @@ const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecogni
 
 if (SpeechRecognition) {
     const recognition = new SpeechRecognition();
-    recognition.lang = 'fr-FR'; 
+    recognition.lang = 'fr-FR';
     recognition.interimResults = false;
 
     if (btnMicro) {
         btnMicro.addEventListener('click', () => {
             try {
                 recognition.start();
-                btnMicro.style.background = '#e76f51'; 
+                btnMicro.style.background = '#e76f51';
                 btnMicro.title = "Écoute en cours...";
             } catch (e) {
                 console.error("Erreur démarrage micro:", e);
@@ -219,7 +235,7 @@ if (SpeechRecognition) {
 
     function reinitialiserBoutonMicro() {
         if (btnMicro) {
-            btnMicro.style.background = '#d4a373'; 
+            btnMicro.style.background = '#d4a373';
             btnMicro.title = "Parler";
         }
     }
