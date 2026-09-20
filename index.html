@@ -3,13 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IA en Fon -- Fon gbe nu</title>
+    <title>IA en Fon — Fon gbe nu</title>
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
     <meta name="theme-color" content="#d4a373">
-    <!-- Script officiel Google Identity Services -->
-    <script src="https://accounts.google.com/gsi/client" async defer></script>
+
+    <!-- Client Supabase (remplace Google Identity Services) -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
     <style>
         * {
             box-sizing: border-box;
@@ -18,33 +20,32 @@
             font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
+        /* ── OVERLAY PAGE D'ACCUEIL ── */
         #auth-overlay {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: linear-gradient(135deg, rgba(11, 27, 20, 0.70) 0%, rgba(20, 48, 35, 0.75) 100%), 
-                        url('https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&w=2000&q=90') no-repeat center center fixed;
-            background-size: cover;
+            inset: 0;
+            background:
+                linear-gradient(135deg, rgba(11,27,20,0.78) 0%, rgba(20,48,35,0.82) 100%),
+                url('https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&w=2000&q=90')
+                no-repeat center center / cover;
             display: flex;
             justify-content: center;
-            align-items: center;
+            align-items: flex-start;
             z-index: 9999;
-            padding: 20px;
+            padding: 24px 16px;
             overflow-y: auto;
         }
 
         .auth-wrapper {
-            max-width: 650px;
+            max-width: 620px;
             width: 100%;
-            background: rgba(13, 31, 23, 0.85);
-            backdrop-filter: blur(16px);
-            -webkit-backdrop-filter: blur(16px);
-            border: 1px solid rgba(212, 163, 115, 0.5);
+            background: rgba(13,31,23,0.88);
+            backdrop-filter: blur(18px);
+            -webkit-backdrop-filter: blur(18px);
+            border: 1px solid rgba(212,163,115,0.45);
             border-radius: 24px;
-            padding: 35px;
-            box-shadow: 0 25px 60px rgba(0, 0, 0, 0.6);
+            padding: 36px 32px;
+            box-shadow: 0 28px 64px rgba(0,0,0,0.65);
             color: #fefae0;
             text-align: center;
             margin: auto;
@@ -55,20 +56,20 @@
             color: #0d1f17;
             padding: 6px 18px;
             border-radius: 30px;
-            font-size: 0.8rem;
+            font-size: 0.78rem;
             font-weight: 700;
             display: inline-block;
-            margin-bottom: 15px;
+            margin-bottom: 14px;
             text-transform: uppercase;
             letter-spacing: 1.5px;
-            box-shadow: 0 4px 15px rgba(212, 163, 115, 0.3);
+            box-shadow: 0 4px 15px rgba(212,163,115,0.3);
         }
 
         .auth-wrapper h1 {
-            font-size: 2.2rem;
+            font-size: 2rem;
             font-weight: 800;
             color: #fefae0;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             line-height: 1.3;
         }
 
@@ -76,113 +77,220 @@
             background: linear-gradient(135deg, #ffb703, #fb8500, #d4a373);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
-            border-bottom: 3px solid #d4a373;
-            padding-bottom: 2px;
         }
 
         .welcome-fon {
-            font-size: 1.05rem;
+            font-size: 0.95rem;
             color: #e9edc9;
             font-weight: 500;
-            line-height: 1.6;
-            margin-bottom: 20px;
-            background: rgba(212, 163, 115, 0.12);
-            padding: 14px 18px;
+            line-height: 1.65;
+            margin-bottom: 18px;
+            background: rgba(212,163,115,0.10);
+            padding: 13px 16px;
             border-radius: 12px;
             border-left: 4px solid #d4a373;
             text-align: left;
         }
 
         .objectifs-card {
-            background: rgba(8, 20, 15, 0.75);
-            border: 1px solid rgba(212, 163, 115, 0.3);
-            border-radius: 16px;
-            padding: 18px;
-            margin-bottom: 20px;
+            background: rgba(8,20,15,0.70);
+            border: 1px solid rgba(212,163,115,0.25);
+            border-radius: 14px;
+            padding: 16px 18px;
+            margin-bottom: 18px;
             text-align: left;
         }
 
         .objectifs-card h3 {
             color: #d4a373;
-            font-size: 0.95rem;
+            font-size: 0.85rem;
             margin-bottom: 10px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            border-bottom: 1px solid rgba(212, 163, 115, 0.25);
+            border-bottom: 1px solid rgba(212,163,115,0.2);
             padding-bottom: 6px;
         }
 
-        .objectifs-card ul {
-            list-style: none;
-        }
+        .objectifs-card ul { list-style: none; }
 
         .objectifs-card li {
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             color: #d8f3dc;
-            margin-bottom: 8px;
+            margin-bottom: 7px;
             display: flex;
             align-items: flex-start;
-            gap: 10px;
-            line-height: 1.4;
+            gap: 9px;
+            line-height: 1.45;
         }
 
         .objectifs-card li::before {
             content: "✦";
             color: #d4a373;
             font-weight: bold;
+            flex-shrink: 0;
         }
 
         .creator-info {
-            font-size: 0.85rem;
+            font-size: 0.82rem;
             color: #d8f3dc;
-            margin-bottom: 20px;
+            margin-bottom: 22px;
         }
 
-        .creator-info strong {
-            color: #d4a373;
+        .creator-info strong { color: #d4a373; }
+
+        /* ── ONGLETS CONNEXION / INSCRIPTION ── */
+        .auth-tabs {
+            display: flex;
+            background: rgba(8,20,15,0.55);
+            border-radius: 12px;
+            padding: 4px;
+            margin-bottom: 18px;
+            border: 1px solid rgba(212,163,115,0.2);
         }
 
-        .btn-google-login {
-            background: #ffffff;
-            color: #2b2b2b;
+        .auth-tab {
+            flex: 1;
+            padding: 10px;
             border: none;
-            padding: 12px 26px;
-            border-radius: 40px;
-            font-weight: 600;
-            font-size: 0.95rem;
+            background: transparent;
+            color: rgba(254,250,224,0.55);
+            border-radius: 9px;
             cursor: pointer;
-            display: inline-flex;
-            align-items: center;
-            gap: 12px;
-            transition: all 0.3s ease;
-            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.4);
+            font-weight: 600;
+            font-size: 0.88rem;
+            transition: all 0.22s;
+            font-family: 'Plus Jakarta Sans', sans-serif;
         }
 
-        .btn-google-login:hover {
-            background: #f8f9fa;
-            transform: translateY(-3px);
-            box-shadow: 0 8px 25px rgba(212, 163, 115, 0.4);
+        .auth-tab.active {
+            background: linear-gradient(135deg, #d4a373, #bc6c25);
+            color: #0d1f17;
+            box-shadow: 0 3px 10px rgba(212,163,115,0.35);
         }
 
-        #app-container {
+        /* ── FORMULAIRES ── */
+        .auth-form {
             display: none;
+            flex-direction: column;
+            gap: 11px;
+        }
+
+        .auth-form.visible { display: flex; }
+
+        .auth-input {
+            background: rgba(8,20,15,0.60);
+            border: 1.5px solid rgba(212,163,115,0.28);
+            border-radius: 10px;
+            padding: 12px 16px;
+            color: #fefae0;
+            font-size: 0.92rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: border-color 0.2s, background 0.2s;
+            width: 100%;
+        }
+
+        .auth-input:focus {
+            outline: none;
+            border-color: #d4a373;
+            background: rgba(8,20,15,0.80);
+        }
+
+        .auth-input::placeholder { color: rgba(254,250,224,0.38); }
+
+        .btn-auth-submit {
+            background: linear-gradient(135deg, #d4a373, #bc6c25);
+            color: #0d1f17;
+            border: none;
+            padding: 13px 26px;
+            border-radius: 40px;
+            font-weight: 700;
+            font-size: 0.92rem;
+            cursor: pointer;
+            transition: all 0.28s ease;
+            box-shadow: 0 5px 18px rgba(212,163,115,0.32);
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            margin-top: 4px;
+            letter-spacing: 0.3px;
+        }
+
+        .btn-auth-submit:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 24px rgba(212,163,115,0.52);
+        }
+
+        .btn-auth-submit:disabled {
+            opacity: 0.55;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        /* ── MESSAGE RETOUR ── */
+        .auth-message {
+            font-size: 0.85rem;
+            padding: 10px 14px;
+            border-radius: 9px;
+            display: none;
+            text-align: left;
+        }
+
+        .auth-message.success {
+            background: rgba(34,197,94,0.13);
+            border: 1px solid rgba(34,197,94,0.35);
+            color: #86efac;
+            display: block;
+        }
+
+        .auth-message.error {
+            background: rgba(239,68,68,0.13);
+            border: 1px solid rgba(239,68,68,0.35);
+            color: #fca5a5;
+            display: block;
+        }
+
+        /* ── APPLICATION CACHÉE AU DÉPART ── */
+        #app-container { display: none; }
+
+        /* ── BOUTON DÉCONNEXION ── */
+        #btn-deconnexion {
+            background: rgba(255,255,255,0.12);
+            color: white;
+            border: 1px solid rgba(255,255,255,0.28);
+            border-radius: 20px;
+            padding: 5px 14px;
+            cursor: pointer;
+            font-size: 0.82rem;
+            font-family: 'Plus Jakarta Sans', sans-serif;
+            transition: background 0.2s;
+            white-space: nowrap;
+        }
+
+        #btn-deconnexion:hover { background: rgba(255,255,255,0.22); }
+
+        /* Nom utilisateur dans le header */
+        #user-name {
+            font-size: 0.82rem;
+            color: rgba(255,255,255,0.75);
+            white-space: nowrap;
         }
     </style>
 </head>
 <body>
 
-    <!-- PAGE D'ACCUEIL & AUTHENTIFICATION GOOGLE -->
+    <!-- ══════════════════════════════════════
+         PAGE D'ACCUEIL & AUTHENTIFICATION
+    ══════════════════════════════════════ -->
     <div id="auth-overlay">
         <div class="auth-wrapper">
-            <div class="auth-badge">Patrimoine & Technologie</div>
+
+            <div class="auth-badge">Patrimoine &amp; Technologie</div>
             <h1><span>Kwábɔ̀ dó Fon IA jí</span></h1>
-            
+
             <div class="welcome-fon">
-                Bí ɔ mìn kpɔ́ dó Google towě kpó, bó ná dó zán wěwlan-gbá ɔ kpó alɔgɔ́tɔ́ ɔ kpó.
+                Bí ɔ mìn kpɔ́ dó towě kpó, bó ná dó zán wěwlan-gbá ɔ kpó alɔgɔ́tɔ́ ɔ kpó. Kɛ́ mɛ bó jó gbéjí!
             </div>
 
             <div class="objectifs-card">
-                <h3>Objectifs du Projet :</h3>
+                <h3>Objectifs du Projet</h3>
                 <ul>
                     <li>Valoriser la langue Fon et faciliter son utilisation numérique grâce à l'Intelligence Artificielle.</li>
                     <li>Mettre à disposition un clavier ergonomique adapté aux spécificités de la langue Fon.</li>
@@ -191,26 +299,53 @@
             </div>
 
             <div class="creator-info">
-                Application développée avec passion par <strong>Salem MAHOUTIN</strong> (ENS Natitingou).
+                Application développée avec passion par <strong>Salem MAHOUTIN</strong> — ENS Natitingou.
             </div>
 
-            <button id="googleLoginBtn" class="btn-google-login">
-                <svg width="20" height="20" viewBox="0 0 18 18"><path fill="#4285F4" d="M17.64 9.2c0-.63-.06-1.25-.16-1.84H9v3.49h4.84c-.21 1.12-.84 2.07-1.8 2.72v2.28h2.92c1.7-1.56 2.68-3.86 2.68-6.65z"/><path fill="#34A853" d="M9 18c2.43 0 4.47-.8 5.96-2.18l-2.92-2.28c-.81.54-1.85.86-3.04.86-2.34 0-4.32-1.58-5.03-3.71H.95v2.33C2.43 15.83 5.48 18 9 18z"/><path fill="#FBBC05" d="M3.97 10.77c-.19-.57-.3-1.19-.3-1.82s.11-1.25.3-1.82V4.8H.95C.34 6.08 0 7.5 0 9s.34 2.92.95 4.2l3.02-2.33z"/><path fill="#EA4335" d="M9 3.58c1.32 0 2.5.45 3.44 1.35l2.58-2.58C13.46.89 11.43 0 9 0 5.48 0 2.43 2.17.95 4.8l3.02 2.33c.71-2.13 2.69-3.55 5.03-3.55z"/></svg>
-                Se connecter avec Google
-            </button>
+            <!-- Onglets -->
+            <div class="auth-tabs">
+                <button class="auth-tab active" onclick="switchTab('login')">🔑 Se connecter</button>
+                <button class="auth-tab" onclick="switchTab('register')">✨ S'inscrire</button>
+            </div>
+
+            <!-- Message retour -->
+            <div id="auth-message" class="auth-message"></div>
+
+            <!-- Formulaire Connexion -->
+            <div class="auth-form visible" id="form-login">
+                <input type="email"    class="auth-input" id="login-email"    placeholder="Adresse email" autocomplete="email">
+                <input type="password" class="auth-input" id="login-password" placeholder="Mot de passe"  autocomplete="current-password">
+                <button class="btn-auth-submit" onclick="handleLogin()">Se connecter →</button>
+            </div>
+
+            <!-- Formulaire Inscription -->
+            <div class="auth-form" id="form-register">
+                <input type="text"     class="auth-input" id="register-name"     placeholder="Prénom et nom"                   autocomplete="name">
+                <input type="email"    class="auth-input" id="register-email"    placeholder="Adresse email"                   autocomplete="email">
+                <input type="password" class="auth-input" id="register-password" placeholder="Mot de passe (min. 6 caractères)" autocomplete="new-password">
+                <input type="password" class="auth-input" id="register-confirm"  placeholder="Confirmer le mot de passe"        autocomplete="new-password">
+                <button class="btn-auth-submit" onclick="handleRegister()">Créer mon compte →</button>
+            </div>
+
         </div>
     </div>
 
-    <!-- APPLICATION PRINCIPALE -->
+    <!-- ══════════════════════════════════════
+         APPLICATION PRINCIPALE
+    ══════════════════════════════════════ -->
     <div id="app-container">
         <header>
             <div id="header-content">
                 <h1 data-translate="appTitle">🌍 IA en Fon</h1>
-                <p id="sous-titre" data-translate="appSubtitle">Parle avec l’IA dans ta langue natale</p>
+                <p id="sous-titre" data-translate="appSubtitle">Parle avec l'IA dans ta langue natale</p>
             </div>
-            <div id="langue-switch">
-                <button class="btn-langue active" data-lang="fr">Français</button>
-                <button class="btn-langue" data-lang="fon">Fɔngbè</button>
+            <div style="display:flex; align-items:center; gap:10px; flex-wrap:wrap;">
+                <span id="user-name"></span>
+                <div id="langue-switch">
+                    <button class="btn-langue active" data-lang="fr">Français</button>
+                    <button class="btn-langue" data-lang="fon">Fɔngbè</button>
+                </div>
+                <button id="btn-deconnexion" onclick="handleLogout()">Déconnexion</button>
             </div>
         </header>
 
@@ -227,41 +362,42 @@
                     <div class="rangee" id="rangee-actions"></div>
                 </div>
 
-                <textarea 
-                    id="texte-fon" 
-                    rows="3" 
+                <textarea
+                    id="texte-fon"
+                    rows="3"
                     data-translate-placeholder="keyboardPlaceholder"
-                    placeholder="Ton texte en Fon apparaît ici ..." 
+                    placeholder="Ton texte en Fon apparaît ici ..."
                     spellcheck="false"
                 ></textarea>
 
                 <div id="actions-texte">
-                    <button id="btn-copier" class="btn-action" data-translate="btnCopy">Copier le texte</button>
-                    <button id="btn-effacer-tout" class="btn-action danger" data-translate="btnClear">Tout effacer</button>
-                    <button id="btn-envoyer-ia" class="btn-action primary" data-translate="btnSendIa">Envoyer à l’IA</button>
+                    <button id="btn-copier"       class="btn-action"         data-translate="btnCopy">Copier le texte</button>
+                    <button id="btn-effacer-tout"  class="btn-action danger"  data-translate="btnClear">Tout effacer</button>
+                    <button id="btn-envoyer-ia"    class="btn-action primary" data-translate="btnSendIa">Envoyer à l'IA</button>
                 </div>
             </section>
 
             <!-- SECTION CHAT IA -->
             <section id="section-chat">
-                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
-                    <h2 data-translate="chatTitle" style="margin: 0;">🤖 Conversation avec l’IA</h2>
-                    <button id="btn-effacer-historique" class="btn-action danger" style="padding: 4px 10px; font-size: 0.75rem;" data-translate="btnClearHistory">Effacer l'historique</button>
+                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;">
+                    <h2 data-translate="chatTitle" style="margin:0;">🤖 Conversation avec l'IA</h2>
+                    <button id="btn-effacer-historique" class="btn-action danger"
+                        style="padding:4px 10px; font-size:0.75rem;"
+                        data-translate="btnClearHistory">Effacer l'historique</button>
                 </div>
 
-                <div id="messages" role="log" aria-live="polite">
-                    <!-- Message par défaut géré par JS -->
-                </div>
+                <div id="messages" role="log" aria-live="polite"></div>
 
                 <div id="zone-saisie">
-                    <textarea 
-                        id="saisie-message" 
-                        rows="2" 
+                    <textarea
+                        id="saisie-message"
+                        rows="2"
                         data-translate-placeholder="chatPlaceholder"
-                        placeholder="Écris ton message ici (Fon ou Français) ..." 
+                        placeholder="Écris ton message ici (Fon ou Français) ..."
                         spellcheck="false"
                     ></textarea>
-                    <button id="btn-micro" title="Parler" aria-label="Parler" style="background: #d4a373; border: none; border-radius: 8px; padding: 0 12px; cursor: pointer; margin-right: 5px; font-size: 1.1rem;">
+                    <button id="btn-micro" title="Parler" aria-label="Parler"
+                        style="background:#d4a373; border:none; border-radius:8px; padding:0 12px; cursor:pointer; margin-right:5px; font-size:1.1rem;">
                         🎤
                     </button>
                     <button id="btn-envoyer" aria-label="Envoyer">➤</button>
@@ -276,116 +412,72 @@
         </main>
 
         <footer>
-            <p data-translate="footerText">Projet IA & Clavier Fon -- Salem MAHOUTIN -- ENS Natitingou</p>
+            <p data-translate="footerText">Projet IA &amp; Clavier Fon — Salem MAHOUTIN — ENS Natitingou</p>
         </footer>
     </div>
 
-    <!-- Scripts -->
+    <!-- ══════════════════════════════════════
+         SCRIPTS
+    ══════════════════════════════════════ -->
+    <script src="auth.js"></script>
     <script src="clavier.js"></script>
     <script src="ia.js"></script>
 
     <script>
-        // Dictionnaires de traduction complets (Français / Fɔngbè)
+        /* ── TRADUCTIONS ── */
         const translations = {
             fr: {
-                appTitle: "🌍 IA en Fon",
-                appSubtitle: "Parle avec l’IA dans ta langue natale",
-                keyboardTitle: "⌨️ Clavier Fon",
-                keyboardHelp: "Clique sur les lettres pour écrire en Fon",
+                appTitle:            "🌍 IA en Fon",
+                appSubtitle:         "Parle avec l'IA dans ta langue natale",
+                keyboardTitle:       "⌨️ Clavier Fon",
+                keyboardHelp:        "Clique sur les lettres pour écrire en Fon",
                 keyboardPlaceholder: "Ton texte en Fon apparaît ici ...",
-                btnCopy: "Copier le texte",
-                btnClear: "Tout effacer",
-                btnSendIa: "Envoyer à l’IA",
-                chatTitle: "🤖 Conversation avec l’IA",
-                btnClearHistory: "Effacer l'historique",
-                welcomeMsg: "Bonjour ! Je suis ton assistant IA. Je peux communiquer en Fon et en français. Utilise le clavier ci-dessus pour écrire en Fon, ou écris directement ici.",
-                chatPlaceholder: "Écris ton message ici (Fon ou Français) ...",
-                footerText: "Projet IA & Clavier Fon -- Salem MAHOUTIN -- ENS Natitingou"
+                btnCopy:             "Copier le texte",
+                btnClear:            "Tout effacer",
+                btnSendIa:           "Envoyer à l'IA",
+                chatTitle:           "🤖 Conversation avec l'IA",
+                btnClearHistory:     "Effacer l'historique",
+                welcomeMsg:          "Bonjour ! Je suis ton assistant IA. Je peux communiquer en Fon et en français. Utilise le clavier ci-dessus pour écrire en Fon, ou écris directement ici.",
+                chatPlaceholder:     "Écris ton message ici (Fon ou Français) ...",
+                footerText:          "Projet IA & Clavier Fon — Salem MAHOUTIN — ENS Natitingou"
             },
             fon: {
-                appTitle: "🌍 Fɔngbè IA",
-                appSubtitle: "Sɔ́ Fɔngbè ɖò nùɖɔɖogbɛ́ ɔ mɛ",
-                keyboardTitle: "⌨️ Fɔngbè Wěwlan-gbá",
-                keyboardHelp: "Kpí nǔ kàn lɛ jí bá ɖó wěwlan ɖò Fɔngbè mɛ",
+                appTitle:            "🌍 Fɔngbè IA",
+                appSubtitle:         "Sɔ́ Fɔngbè ɖò nùɖɔɖogbɛ́ ɔ mɛ",
+                keyboardTitle:       "⌨️ Fɔngbè Wěwlan-gbá",
+                keyboardHelp:        "Kpí nǔ kàn lɛ jí bá ɖó wěwlan ɖò Fɔngbè mɛ",
                 keyboardPlaceholder: "Fɔngbè wěwlan towě na tɔ́n ɖò fi...",
-                btnCopy: "Kpa wěwlan ɔ",
-                btnClear: "Sɔ́ bǐ sɔ́",
-                btnSendIa: "Dó cé nú IA",
-                chatTitle: "🤖 Nùɖɔɖó IA kpó mɛ kpó",
-                btnClearHistory: "Sɔ́ xóxó lɛ sɔ́",
-                welcomeMsg: "Bɔ̀! Un nyí alɔgɔ́tɔ́ towě. Un sixu ɖɔ xó ɖò Fɔngbè mɛ. Zán wěwlan-gbá ɔ ɖò aga ɖò fi alǒ wlan ɖò fi.",
-                chatPlaceholder: "Wlan wěwlan towě ɖò fi (Fɔngbè gànji)...",
-                footerText: "Projet IA & Fɔngbè -- Salem MAHOUTIN -- ENS Natitingou"
+                btnCopy:             "Kpa wěwlan ɔ",
+                btnClear:            "Sɔ́ bǐ sɔ́",
+                btnSendIa:           "Dó cé nú IA",
+                chatTitle:           "🤖 Nùɖɔɖó IA kpó mɛ kpó",
+                btnClearHistory:     "Sɔ́ xóxó lɛ sɔ́",
+                welcomeMsg:          "Bɔ̀! Un nyí alɔgɔ́tɔ́ towě. Un sixu ɖɔ xó ɖò Fɔngbè mɛ. Zán wěwlan-gbá ɔ ɖò aga ɖò fi alǒ wlan ɖò fi.",
+                chatPlaceholder:     "Wlan wěwlan towě ɖò fi (Fɔngbè gànji)...",
+                footerText:          "Projet IA & Fɔngbè — Salem MAHOUTIN — ENS Natitingou"
             }
         };
 
         function setLanguage(lang) {
             document.querySelectorAll('[data-translate]').forEach(el => {
                 const key = el.getAttribute('data-translate');
-                if (translations[lang] && translations[lang][key]) {
-                    el.textContent = translations[lang][key];
-                }
+                if (translations[lang]?.[key]) el.textContent = translations[lang][key];
             });
             document.querySelectorAll('[data-translate-placeholder]').forEach(el => {
                 const key = el.getAttribute('data-translate-placeholder');
-                if (translations[lang] && translations[lang][key]) {
-                    el.placeholder = translations[lang][key];
-                }
+                if (translations[lang]?.[key]) el.placeholder = translations[lang][key];
             });
             localStorage.setItem('preferred_lang', lang);
-            
-            // Si le message de bienvenue est le premier affiché, on le met à jour dynamiquement dans la langue active
-            if (typeof mettreAJourMessageBienvenue === 'function') {
-                mettreAJourMessageBienvenue(lang);
-            }
+            document.querySelectorAll('.btn-langue').forEach(b =>
+                b.classList.toggle('active', b.getAttribute('data-lang') === lang)
+            );
+            if (typeof mettreAJourMessageBienvenue === 'function') mettreAJourMessageBienvenue(lang);
         }
 
         document.querySelectorAll('.btn-langue').forEach(btn => {
-            btn.addEventListener('click', (e) => {
-                document.querySelectorAll('.btn-langue').forEach(b => b.classList.remove('active'));
-                e.target.classList.add('active');
-                const lang = e.target.getAttribute('data-lang');
-                setLanguage(lang);
+            btn.addEventListener('click', e => {
+                setLanguage(e.currentTarget.getAttribute('data-lang'));
             });
-        });
-
-        // Gestion de la persistance de session (Compte fixe / Connexion unique)
-        window.onload = function () {
-            const isConnected = localStorage.getItem('user_connected');
-            if (isConnected === 'true') {
-                document.getElementById('auth-overlay').style.display = 'none';
-                document.getElementById('app-container').style.display = 'block';
-            }
-
-            if (typeof google !== 'undefined' && google.accounts) {
-                tokenClient = google.accounts.oauth2.initTokenClient({
-                    client_id: "764270245740-5gsnq1blcdfp3nfjhckkbniubv3rrva8.apps.googleusercontent.com",
-                    scope: 'email profile',
-                    callback: (tokenResponse) => {
-                        if (tokenResponse && tokenResponse.access_token) {
-                            localStorage.setItem('user_connected', 'true');
-                            document.getElementById('auth-overlay').style.display = 'none';
-                            document.getElementById('app-container').style.display = 'block';
-                        }
-                    },
-                });
-            }
-
-            const savedLang = localStorage.getItem('preferred_lang') || 'fr';
-            document.querySelectorAll('.btn-langue').forEach(b => {
-                if (b.getAttribute('data-lang') === savedLang) b.classList.add('active');
-                else b.classList.remove('active');
-            });
-            setLanguage(savedLang);
-        };
-
-        let tokenClient;
-        document.getElementById('googleLoginBtn').addEventListener('click', function () {
-            if (tokenClient) {
-                tokenClient.requestAccessToken();
-            } else {
-                alert("Le service de connexion Google est en cours de chargement, réessayez dans un instant.");
-            }
         });
     </script>
 </body>

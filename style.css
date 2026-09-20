@@ -27,7 +27,13 @@
 
 body {
   font-family: 'Segoe UI', Arial, sans-serif;
-  background: #f0fdf4;
+  background-color: #0d2b1e;
+  background-image:
+    linear-gradient(rgba(8, 22, 15, 0.52), rgba(8, 22, 15, 0.52)),
+    url('https://images.unsplash.com/photo-1734867790637-1716c5b9ab42?auto=format&fit=crop&w=2000&q=85');
+  background-size: cover;
+  background-position: center;
+  background-attachment: fixed;
   color: var(--texte);
   min-height: 100vh;
   display: flex;
@@ -101,10 +107,11 @@ main {
 }
 
 section {
-  background: var(--blanc);
+  background: rgba(255, 255, 255, 0.93);
   border-radius: var(--rayon);
   padding: 20px;
-  box-shadow: var(--ombre);
+  box-shadow: 0 4px 20px rgba(0, 0, 0, 0.25);
+  backdrop-filter: blur(4px);
 }
 
 section h2 {
@@ -387,10 +394,11 @@ footer {
   text-align: center;
   padding: 14px;
   font-size: 0.78rem;
-  color: var(--gris);
-  border-top: 1px solid #e5e7eb;
-  background: white;
+  color: rgba(255, 255, 255, 0.75);
+  border-top: 1px solid rgba(255, 255, 255, 0.15);
+  background: rgba(8, 22, 15, 0.60);
   margin-top: auto;
+  backdrop-filter: blur(4px);
 }
 
 /* ============================
