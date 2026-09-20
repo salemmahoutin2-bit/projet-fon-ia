@@ -22,7 +22,7 @@ Autres règles :
     };
 }
 
-// Éléments du DOM
+// Éléments DOM
 const zoneMessages   = document.getElementById('messages');
 const champSaisie    = document.getElementById('saisie-message');
 const btnEnvoyer     = document.getElementById('btn-envoyer');
@@ -31,8 +31,13 @@ const btnMicro       = document.getElementById('btn-micro');
 const btnEnvoyerIa   = document.getElementById('btn-envoyer-ia');
 const texteFon       = document.getElementById('texte-fon');
 const btnEffacerHist = document.getElementById('btn-effacer-historique');
+const inputFichier   = document.getElementById('input-fichier');
+const apercuFichiers = document.getElementById('apercu-fichiers');
 
 let historique = JSON.parse(localStorage.getItem('chat_history')) || [];
+
+// Fichiers en attente d'envoi
+let fichiersEnAttente = [];
 
 /* ── Horodatage ── */
 function obtenirHeure() {
@@ -44,18 +49,11 @@ function afficherMessage(texte, auteur) {
     const divMessage = document.createElement('div');
     divMessage.className = 'message ' + (auteur === 'user' ? 'msg-user' : 'msg-ia');
 
-    // Avatar
     const avatar = document.createElement('div');
-    if (auteur === 'ia') {
-        avatar.className = 'avatar-ia';
-        avatar.textContent = '🤖';
-    } else {
-        avatar.className = 'avatar-user';
-        avatar.textContent = '👤';
-    }
+    avatar.className = auteur === 'ia' ? 'avatar-ia' : 'avatar-user';
+    avatar.textContent = auteur === 'ia' ? '🤖' : '👤';
     divMessage.appendChild(avatar);
 
-    // Bulle + horodatage
     const bulle = document.createElement('div');
     bulle.className = 'bulle';
     bulle.innerHTML = texte.replace(/\n/g, '<br>');
@@ -68,6 +66,83 @@ function afficherMessage(texte, auteur) {
     divMessage.appendChild(bulle);
     zoneMessages.appendChild(divMessage);
     zoneMessages.scrollTop = zoneMessages.scrollHeight;
+}
+
+/* ── Afficher un fichier dans le chat ── */
+function afficherFichierMessage(fichier, auteur) {
+    const divMessage = document.createElement('div');
+    divMessage.className = 'message ' + (auteur === 'user' ? 'msg-user' : 'msg-ia');
+
+    const avatar = document.createElement('div');
+    avatar.className = auteur === 'ia' ? 'avatar-ia' : 'avatar-user';
+    avatar.textContent = auteur === 'ia' ? '🤖' : '👤';
+    divMessage.appendChild(avatar);
+
+    const bulle = document.createElement('div');
+    bulle.className = 'bulle bulle-fichier';
+
+    const isImage = fichier.type.startsWith('image/');
+    if (isImage) {
+        const url = URL.createObjectURL(fichier);
+        bulle.innerHTML = `<img src="${url}" alt="${fichier.name}" style="max-width:220px; max-height:180px; border-radius:8px; display:block; margin-bottom:4px;">`;
+    } else {
+        const icone = obtenirIconeFichier(fichier.name);
+        bulle.innerHTML = `<div class="fichier-joint">${icone} <span>${fichier.name}</span><small>${formaterTaille(fichier.size)}</small></div>`;
+    }
+
+    const meta = document.createElement('div');
+    meta.className = 'bulle-meta';
+    meta.textContent = obtenirHeure();
+    bulle.appendChild(meta);
+
+    divMessage.appendChild(bulle);
+    zoneMessages.appendChild(divMessage);
+    zoneMessages.scrollTop = zoneMessages.scrollHeight;
+}
+
+function obtenirIconeFichier(nom) {
+    const ext = nom.split('.').pop().toLowerCase();
+    const icons = { pdf: '📄', doc: '📝', docx: '📝', xls: '📊', xlsx: '📊',
+                    ppt: '📑', pptx: '📑', mp3: '🎵', mp4: '🎬', zip: '🗜️',
+                    rar: '🗜️', txt: '📃', csv: '📊' };
+    return icons[ext] || '📎';
+}
+
+function formaterTaille(bytes) {
+    if (bytes < 1024) return bytes + ' o';
+    if (bytes < 1024*1024) return (bytes/1024).toFixed(1) + ' Ko';
+    return (bytes/(1024*1024)).toFixed(1) + ' Mo';
+}
+
+/* ── Gestion fichiers ── */
+if (inputFichier) {
+    inputFichier.addEventListener('change', () => {
+        const fichiers = Array.from(inputFichier.files);
+        fichiersEnAttente = [...fichiersEnAttente, ...fichiers];
+        afficherApercuFichiers();
+        inputFichier.value = '';
+    });
+}
+
+function afficherApercuFichiers() {
+    if (!apercuFichiers) return;
+    apercuFichiers.innerHTML = '';
+    if (fichiersEnAttente.length === 0) return;
+
+    fichiersEnAttente.forEach((f, i) => {
+        const chip = document.createElement('div');
+        chip.className = 'fichier-chip';
+        const isImage = f.type.startsWith('image/');
+        chip.innerHTML = `
+            <span>${isImage ? '🖼️' : obtenirIconeFichier(f.name)} ${f.name.length > 18 ? f.name.slice(0,18)+'…' : f.name}</span>
+            <button onclick="supprimerFichier(${i})" title="Retirer">✕</button>`;
+        apercuFichiers.appendChild(chip);
+    });
+}
+
+function supprimerFichier(index) {
+    fichiersEnAttente.splice(index, 1);
+    afficherApercuFichiers();
 }
 
 /* ── Skeleton loading ── */
@@ -120,11 +195,7 @@ function mettreAJourMessageBienvenue(lang) {
 
 /* ── Chargement ── */
 function setChargement(actif) {
-    if (actif) {
-        afficherSkeleton();
-    } else {
-        supprimerSkeleton();
-    }
+    if (actif) afficherSkeleton(); else supprimerSkeleton();
     if (btnEnvoyer)  btnEnvoyer.disabled  = actif;
     if (champSaisie) champSaisie.disabled = actif;
     if (btnMicro)    btnMicro.disabled    = actif;
@@ -133,34 +204,52 @@ function setChargement(actif) {
 /* ── Envoyer message ── */
 async function envoyerMessage(texteForce = null) {
     const texte = texteForce || champSaisie?.value.trim();
-    if (!texte) {
+    const aFichiers = fichiersEnAttente.length > 0;
+
+    if (!texte && !aFichiers) {
         if (!texteForce && champSaisie) champSaisie.focus();
         return;
     }
 
-    afficherMessage(texte, 'user');
-
-    if (!texteForce && champSaisie) {
-        champSaisie.value = '';
-        champSaisie.style.height = 'auto';
+    // Afficher les fichiers dans le chat
+    if (aFichiers) {
+        fichiersEnAttente.forEach(f => afficherFichierMessage(f, 'user'));
+        fichiersEnAttente = [];
+        afficherApercuFichiers();
     }
 
-    historique.push({ role: 'user', parts: [{ text: texte }] });
-    sauvegarderHistorique();
+    if (texte) {
+        afficherMessage(texte, 'user');
+        if (!texteForce && champSaisie) {
+            champSaisie.value = '';
+            champSaisie.style.height = 'auto';
+        }
+        historique.push({ role: 'user', parts: [{ text: texte }] });
+        sauvegarderHistorique();
+    }
+
+    // Sauvegarder la conversation dans la liste
+    if (typeof sauvegarderConvActuelle === 'function') sauvegarderConvActuelle();
+
     setChargement(true);
 
     try {
+        const msgEnvoye = texte || "[Fichier(s) envoyé(s) — réponds de façon appropriée]";
+        const contentsEnvoi = texte ? historique : [
+            ...historique,
+            { role: 'user', parts: [{ text: msgEnvoye }] }
+        ];
+
         const response = await fetch('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
                 system_instruction: obtenirSystemInstruction(),
-                contents: historique
+                contents: contentsEnvoi
             })
         });
 
         const donnees = await response.json();
-
         if (!response.ok) throw new Error(donnees.error || `Erreur HTTP ${response.status}`);
         if (!donnees.candidates?.length) throw new Error("Aucune réponse de l'IA.");
 
@@ -170,6 +259,7 @@ async function envoyerMessage(texteForce = null) {
         historique.push({ role: 'model', parts: [{ text: texteIA }] });
         sauvegarderHistorique();
         if (historique.length > 30) historique = historique.slice(-30);
+        if (typeof sauvegarderConvActuelle === 'function') sauvegarderConvActuelle();
 
     } catch (erreur) {
         console.error('Erreur IA:', erreur);
@@ -180,7 +270,7 @@ async function envoyerMessage(texteForce = null) {
                 : "Désolé, une erreur est survenue lors de la communication avec le serveur.",
             'ia'
         );
-        historique.pop();
+        if (texte) historique.pop();
     }
 
     setChargement(false);

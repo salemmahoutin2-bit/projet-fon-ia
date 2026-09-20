@@ -352,8 +352,12 @@
         </div>
 
         <div class="sidebar-section">
-            <p class="sidebar-titre">💬 Historique</p>
-            <button class="sidebar-btn danger" onclick="effacerHistorique()">🗑️ Effacer l'historique</button>
+            <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:10px;">
+                <p class="sidebar-titre" style="margin-bottom:0;">💬 Conversations</p>
+                <button id="btn-nouvelle-conv" onclick="nouvelleConversation()" title="Nouvelle conversation">➕</button>
+            </div>
+            <div id="liste-conversations"></div>
+            <button class="sidebar-btn danger" style="margin-top:10px;" onclick="effacerToutesConversations()">🗑️ Tout effacer</button>
         </div>
 
         <div class="sidebar-section">
@@ -384,6 +388,9 @@
             <div style="display:flex; align-items:center; gap:8px;">
                 <button id="btn-theme" onclick="toggleTheme()" title="Changer le thème">🌙</button>
             </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <button id="btn-theme" onclick="toggleTheme()" title="Changer le thème">🌙</button>
+            </div>
             <!-- langue-switch caché (géré via sidebar) -->
             <div id="langue-switch" style="display:none;">
                 <button class="btn-langue active" data-lang="fr">Français</button>
@@ -401,6 +408,7 @@
                 <p class="aide" data-translate="keyboardHelp">Clique sur les lettres pour écrire en Fon</p>
 
                 <div id="clavier-body">
+                <div id="clavier-body">
                 <textarea
                     id="texte-fon"
                     rows="3"
@@ -417,6 +425,7 @@
 
                 <div id="clavier-container"></div>
                 </div><!-- fin clavier-body -->
+                </div><!-- fin clavier-body -->
             </section>
 
             <!-- SECTION CHAT IA -->
@@ -431,6 +440,8 @@
                 <div id="messages" role="log" aria-live="polite"></div>
 
                 <div id="zone-saisie">
+                    <input type="file" id="input-fichier" accept="*/*" style="display:none;" multiple />
+                    <button id="btn-fichier" title="Joindre un fichier" onclick="document.getElementById('input-fichier').click()">📎</button>
                     <textarea
                         id="saisie-message"
                         rows="2"
@@ -444,6 +455,7 @@
                     </button>
                     <button id="btn-envoyer" aria-label="Envoyer">➤</button>
                 </div>
+                <div id="apercu-fichiers"></div>
 
                 <div id="chargement" hidden>
                     <span class="point"></span>

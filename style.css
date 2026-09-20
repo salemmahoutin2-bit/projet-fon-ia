@@ -702,3 +702,108 @@ footer {
   .btn-action { width: 100%; }
   .msg-user .bulle, .msg-ia .bulle { max-width: 90%; }
 }
+/* ============================
+   BOUTON FICHIER 📎
+   ============================ */
+#btn-fichier {
+    background: transparent;
+    border: none;
+    font-size: 1.3rem;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 8px;
+    transition: background 0.2s;
+    flex-shrink: 0;
+}
+
+#btn-fichier:hover {
+    background: var(--gris-clair);
+}
+
+/* Aperçu fichiers en attente */
+#apercu-fichiers {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 6px;
+    margin-bottom: 6px;
+}
+
+.fichier-chip {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--bleu-clair);
+    color: var(--bleu);
+    border-radius: 20px;
+    padding: 4px 10px;
+    font-size: 0.82rem;
+    font-weight: 500;
+}
+
+.fichier-chip button {
+    background: none;
+    border: none;
+    color: var(--bleu);
+    cursor: pointer;
+    font-size: 0.85rem;
+    padding: 0;
+    line-height: 1;
+}
+
+body.dark .fichier-chip {
+    background: #1e2d4a;
+    color: #93c5fd;
+}
+
+/* Fichier joint dans bulle */
+.fichier-joint {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.9rem;
+}
+
+.fichier-joint small {
+    opacity: 0.6;
+    font-size: 0.75rem;
+}
+
+/* ============================
+   CONVERSATIONS SIDEBAR
+   ============================ */
+#btn-nouvelle-conv {
+    background: rgba(255,255,255,0.15);
+    border: none;
+    color: white;
+    font-size: 1.1rem;
+    cursor: pointer;
+    border-radius: 8px;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background 0.2s;
+}
+
+#btn-nouvelle-conv:hover {
+    background: rgba(255,255,255,0.28);
+}
+
+#liste-conversations {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+    max-height: 280px;
+    overflow-y: auto;
+}
+
+.conv-item {
+    padding: 9px 12px !important;
+    text-align: left;
+}
+
+.conv-active {
+    background: rgba(255,255,255,0.22) !important;
+    border-left: 3px solid #86efac;
+}
