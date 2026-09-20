@@ -4,7 +4,7 @@
       "maxDuration": 30
     }
   },
-  "rewrites": [
-    { "source": "/api/chat", "destination": "/api/chat.js" }
+  "routes": [
+    { "src": "/api/chat", "dest": "/api/chat.js" }
   ]
 }
