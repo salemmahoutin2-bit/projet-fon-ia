@@ -1,40 +1,40 @@
 /* ================================================
-CLAVIER FON INTERACTIF
+CLAVIER FON INTERACTIF - Disposition Google Gboard Fon
 Fichier : clavier.js
 ================================================ */
 
-// Caracteres du Fon organises par categorie
+// Disposition inspirée du clavier Google Gboard pour le Fon
+// 3 rangées principales + rangée spéciale + actions
 const TOUCHES = {
 
-  // Consonnes du Fon
-  consonnes: [
-    'b', 'd', 'f', 'g', 'gb', 'h', 'j', 'k',
-    'kp', 'l', 'm', 'n', 'ny', 'p', 'r', 's',
-    't', 'v', 'w', 'x', 'y', 'z'
+  // Rangée 1 (chiffres/symboles Fon + quelques consonnes)
+  rangee1: [
+    'q', 'w', 'e', 'r', 't', 'y', 'u', 'i', 'o', 'p'
   ],
 
-  // Voyelles (incluant les voyelles speciales Fon)
-  voyelles: [
-    'a', 'e', 'i', 'o', 'u',
-    '\u025B', // lettre epsilon (son ouvert e: ɛ)
-    '\u0254', // lettre o ouvert: ɔ
-    '\u00E3'  // a nasal: ã
+  // Rangée 2 (consonnes principales du Fon)
+  rangee2: [
+    'a', 's', 'd', 'f', 'g', 'h', 'j', 'k', 'l'
   ],
 
-  // Tons et accents (tres importants en Fon)
-  tons: [
-    '\u00E1', '\u00E0', // a ton haut, a ton bas
-    '\u00E9', '\u00E8', // e ton haut, e ton bas
-    '\u00ED', '\u00EC', // i ton haut, i ton bas
-    '\u00F3', '\u00F2', // o ton haut, o ton bas
-    '\u00FA', '\u00F9'  // u ton haut, u ton bas
+  // Rangée 3 (consonnes + voyelles spéciales Fon)
+  rangee3: [
+    'z', 'x', 'c', 'v', 'b', 'n', 'm'
+  ],
+
+  // Rangée spéciale Fon (caractères propres à la langue)
+  rangeeFon: [
+    'gb', 'kp', 'ny',           // Consonnes spéciales Fon
+    'ɛ', 'ɔ', 'ã',              // Voyelles spéciales Fon
+    'á', 'à', 'é', 'è',         // Tons hauts et bas
+    'í', 'ì', 'ó', 'ò', 'ú', 'ù' // Tons hauts et bas (suite)
   ],
 
   // Touches d'action
   actions: [
-    { label: 'Espace', valeur: ' ', type: 'special' },
-    { label: '\u232B Retour', valeur: 'RETOUR', type: 'special' },
-    { label: 'Majuscule \u2191', valeur: 'MAJ', type: 'special' }
+    { label: 'Espace',       valeur: ' ',      type: 'special' },
+    { label: '⌫ Retour',    valeur: 'RETOUR', type: 'special' },
+    { label: 'Maj ⇧',       valeur: 'MAJ',    type: 'special' }
   ]
 };
 
@@ -42,25 +42,22 @@ const TOUCHES = {
 let majuscule = false;
 const textarea = document.getElementById('texte-fon');
 
-// Fonction : creer une touche
+// Fonction : créer une touche
 function creerTouche(lettre, type = 'normal') {
   const btn = document.createElement('button');
   btn.className = 'touche' + (type !== 'normal' ? ' ' + type : '');
   btn.textContent = lettre;
   btn.setAttribute('aria-label', 'Touche ' + lettre);
   btn.setAttribute('type', 'button');
-
   btn.addEventListener('click', () => gererClic(lettre, type));
   return btn;
 }
 
-// Fonction : gerer le clic sur une touche
+// Fonction : gérer le clic sur une touche
 function gererClic(valeur, type) {
-  // Focus sur la zone de texte
   textarea.focus();
 
   if (valeur === 'RETOUR') {
-    // Supprimer le dernier caractere
     const pos = textarea.selectionStart;
     if (pos > 0) {
       const avant = textarea.value.slice(0, pos - 1);
@@ -72,9 +69,8 @@ function gererClic(valeur, type) {
   }
 
   if (valeur === 'MAJ') {
-    // Basculer majuscule / minuscule
     majuscule = !majuscule;
-    document.querySelectorAll('.touche:not(.special):not(.ton)')
+    document.querySelectorAll('.touche:not(.special):not(.fon)')
       .forEach(t => {
         if (t.textContent.length === 1) {
           t.textContent = majuscule
@@ -85,7 +81,6 @@ function gererClic(valeur, type) {
     return;
   }
 
-  // Inserer le caractere a la position du curseur
   const pos = textarea.selectionStart;
   const avant = textarea.value.slice(0, pos);
   const apres = textarea.value.slice(pos);
@@ -100,38 +95,60 @@ function gererClic(valeur, type) {
 
 // Construire le clavier
 function construireClavier() {
+  const container = document.getElementById('clavier-container');
+  container.innerHTML = ''; // Vider l'existant
 
-  // Rangee 1 : Consonnes
-  const rangeeConsonnes = document.getElementById('rangee-consonnes');
-  TOUCHES.consonnes.forEach(c => {
-    rangeeConsonnes.appendChild(creerTouche(c));
-  });
+  // Rangée 1
+  const r1 = document.createElement('div');
+  r1.className = 'rangee';
+  TOUCHES.rangee1.forEach(c => r1.appendChild(creerTouche(c)));
+  container.appendChild(r1);
 
-  // Rangee 2 : Voyelles
-  const rangeeVoyelles = document.getElementById('rangee-voyelles');
-  TOUCHES.voyelles.forEach(v => {
-    rangeeVoyelles.appendChild(creerTouche(v));
-  });
+  // Rangée 2
+  const r2 = document.createElement('div');
+  r2.className = 'rangee';
+  TOUCHES.rangee2.forEach(c => r2.appendChild(creerTouche(c)));
+  container.appendChild(r2);
 
-  // Rangee 3 : Tons
-  const rangeeTons = document.getElementById('rangee-tons');
-  TOUCHES.tons.forEach(t => {
-    rangeeTons.appendChild(creerTouche(t, 'ton'));
-  });
+  // Rangée 3 (avec MAJ à gauche et RETOUR à droite comme Google)
+  const r3 = document.createElement('div');
+  r3.className = 'rangee';
+  // Maj à gauche
+  const btnMaj = document.createElement('button');
+  btnMaj.className = 'touche special';
+  btnMaj.textContent = 'Maj ⇧';
+  btnMaj.setAttribute('type', 'button');
+  btnMaj.addEventListener('click', () => gererClic('MAJ', 'special'));
+  r3.appendChild(btnMaj);
+  TOUCHES.rangee3.forEach(c => r3.appendChild(creerTouche(c)));
+  // Retour à droite
+  const btnRetour = document.createElement('button');
+  btnRetour.className = 'touche special';
+  btnRetour.textContent = '⌫';
+  btnRetour.setAttribute('type', 'button');
+  btnRetour.addEventListener('click', () => gererClic('RETOUR', 'special'));
+  r3.appendChild(btnRetour);
+  container.appendChild(r3);
 
-  // Rangee 4 : Actions speciales
-  const rangeeActions = document.getElementById('rangee-actions');
-  TOUCHES.actions.forEach(({ label, valeur }) => {
-    const btn = document.createElement('button');
-    btn.className = 'touche special';
-    btn.textContent = label;
-    btn.setAttribute('type', 'button');
-    btn.addEventListener('click', () => gererClic(valeur, 'special'));
-    rangeeActions.appendChild(btn);
-  });
+  // Rangée spéciale Fon (caractères propres)
+  const rFon = document.createElement('div');
+  rFon.className = 'rangee';
+  TOUCHES.rangeeFon.forEach(c => rFon.appendChild(creerTouche(c, 'fon')));
+  container.appendChild(rFon);
+
+  // Rangée Espace (comme Google : large barre d'espace au centre)
+  const rEspace = document.createElement('div');
+  rEspace.className = 'rangee rangee-espace';
+  const btnEspace = document.createElement('button');
+  btnEspace.className = 'touche special touche-espace';
+  btnEspace.textContent = 'Espace';
+  btnEspace.setAttribute('type', 'button');
+  btnEspace.addEventListener('click', () => gererClic(' ', 'special'));
+  rEspace.appendChild(btnEspace);
+  container.appendChild(rEspace);
 }
 
-// Boutons d'action sur le texte
+// ── BOUTONS D'ACTION SUR LE TEXTE ──
 
 // Copier le texte
 document.getElementById('btn-copier').addEventListener('click', () => {
@@ -140,7 +157,7 @@ document.getElementById('btn-copier').addEventListener('click', () => {
     .then(() => {
       const btn = document.getElementById('btn-copier');
       const original = btn.textContent;
-      btn.textContent = 'Copie !';
+      btn.textContent = 'Copié !';
       setTimeout(() => btn.textContent = original, 1500);
     });
 });
@@ -153,19 +170,13 @@ document.getElementById('btn-effacer-tout').addEventListener('click', () => {
   }
 });
 
-// Envoyer vers l'IA (via l'event defini dans ia.js)
+// Envoyer vers l'IA
 document.getElementById('btn-envoyer-ia').addEventListener('click', () => {
   const texte = textarea.value.trim();
   if (!texte) return;
-
-  // Copier dans la zone de saisie du chat
   const champChat = document.getElementById('saisie-message');
   champChat.value = texte;
-
-  // Declencher l'envoi
   document.getElementById('btn-envoyer').click();
-
-  // Optionnel : vider le clavier apres envoi
   textarea.value = '';
 });
 
