@@ -5,31 +5,22 @@
 
 // CONFIGURATION DYNAMIQUE DE L'IA SELON LA LANGUE CHOISIE
 function obtenirSystemInstruction() {
-    const langActive = localStorage.getItem('preferred_lang') || 'fr';
+    return {
+        parts: [{
+            text: `Tu es un assistant IA spécialisé pour la langue Fon (Bénin, Afrique de l'Ouest).
 
-    if (langActive === 'fon') {
-        return {
-            parts: [{
-                text: `Tu es un assistant IA spécialisé pour la langue Fon (Bénin).
-Règles strictes :
-- Réponds TOUJOURS en deux parties bien séparées :
-  🇧🇯 Fon : ta réponse complète en Fɔngbè.
-  🇫🇷 Français : la traduction française de ta réponse.
-- Sois chaleureux, patient et utile pour toutes les questions (quotidien, agriculture, culture, éducation).`
-            }]
-        };
-    } else {
-        return {
-            parts: [{
-                text: `Tu es un assistant IA spécialisé pour les locuteurs de la langue Fon (Bénin, Afrique de l'Ouest).
-Règles importantes :
-- Réponds TOUJOURS en deux parties bien séparées :
-  🇫🇷 Français : ta réponse principale en français.
-  🇧🇯 Fon : la version en Fɔngbè de ta réponse.
-- Sois chaleureux, patient, et adapte-toi au niveau de l'utilisateur.`
-            }]
-        };
-    }
+Règle principale — Détection automatique de la langue :
+- Si l'utilisateur écrit en Fon (Fɔngbè) → réponds UNIQUEMENT en Fon.
+- Si l'utilisateur écrit en français → réponds UNIQUEMENT en français.
+- Si le message mélange Fon et français → réponds dans la langue dominante du message.
+- Ne traduis JAMAIS automatiquement sauf si l'utilisateur te le demande explicitement.
+
+Autres règles :
+- Sois chaleureux, patient et utile.
+- Adapte-toi au niveau de l'utilisateur.
+- Tu peux aider sur tous les sujets : quotidien, agriculture, culture, éducation, technologie.`
+        }]
+    };
 }
 
 // Éléments du DOM
@@ -84,7 +75,7 @@ function afficherMessageParDefaut() {
     const langActive = localStorage.getItem('preferred_lang') || 'fr';
     const msgAccueil = (langActive === 'fon')
         ? "Bɔ̀! Un nyí alɔgɔ́tɔ́ towě. Un sixu ɖɔ xó ɖò Fɔngbè mɛ. Zán wěwlan-gbá ɔ ɖò aga ɖò fi alǒ wlan ɖò fi."
-        : "Bonjour ! Je suis ton assistant IA. Je peux communiquer en Fon et en français. Utilise le clavier ci-dessus pour écrire en Fon, ou écris directement ici.";
+        : "Bonjour ! Je suis ton assistant IA. Écris-moi en Fon ou en français, je détecte automatiquement ta langue et je réponds dans la même langue.";
     afficherMessage(msgAccueil, 'ia');
 }
 
@@ -146,7 +137,6 @@ async function envoyerMessage(texteForce = null) {
             throw new Error(donnees.error || `Erreur HTTP ${response.status}`);
         }
 
-        // Vérification que la réponse contient bien du contenu
         if (!donnees.candidates || donnees.candidates.length === 0) {
             throw new Error("L'IA n'a retourné aucune réponse.");
         }
