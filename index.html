@@ -3,7 +3,30 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>IA en Fon — Fon gbe nu</title>
+    <title>IA en Fon | Assistant IA Fɔngbè — par Salem MAHOUTIN</title>
+
+    <!-- ══ SEO META ══ -->
+    <meta name="description" content="Plateforme d'intelligence artificielle révolutionnaire dédiée à la langue Fon (Fɔngbè) du Bénin. Conçue et développée par Salem MAHOUTIN, étudiant en Mathématiques et Informatique à l'École Normale Supérieure de Natitingou (ENS Natitingou), développeur IA passionné et spécialiste des technologies linguistiques africaines. Communiquez avec l'IA en Fon ou en français, utilisez le clavier Fon interactif et explorez l'avenir de l'IA africaine.">
+    <meta name="keywords" content="Fon, Fɔngbè, IA, intelligence artificielle, Bénin, Afrique, langue africaine, Salem MAHOUTIN, ENS Natitingou, Mathématiques Informatique, clavier Fon, assistant virtuel, technologie africaine">
+    <meta name="author" content="Salem MAHOUTIN — ENS Natitingou, Mathématiques et Informatique">
+    <meta name="robots" content="index, follow">
+    <meta name="language" content="French, Fon">
+
+    <!-- ══ OPEN GRAPH (réseaux sociaux) ══ -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://projet-fon-ia-arj6.vercel.app/">
+    <meta property="og:title" content="IA en Fon | Assistant IA Fɔngbè — par Salem MAHOUTIN">
+    <meta property="og:description" content="Plateforme IA révolutionnaire dédiée à la langue Fon du Bénin. Développée par Salem MAHOUTIN, étudiant en Mathématiques et Informatique à l'ENS Natitingou. Communiquez avec l'IA en Fɔngbè ou en français.">
+    <meta property="og:site_name" content="IA en Fon">
+    <meta property="og:locale" content="fr_FR">
+
+    <!-- ══ TWITTER CARD ══ -->
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="IA en Fon | Assistant IA Fɔngbè — par Salem MAHOUTIN">
+    <meta name="twitter:description" content="Plateforme IA révolutionnaire dédiée à la langue Fon du Bénin. Développée par Salem MAHOUTIN, ENS Natitingou.">
+
+    <!-- ══ GOOGLE VERIFICATION ══ -->
+    <meta name="google-site-verification" content="google5ed3b5b66b1a52df">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="style.css">
     <link rel="manifest" href="manifest.json">
@@ -250,27 +273,6 @@
         /* ── APPLICATION CACHÉE AU DÉPART ── */
         #app-container { display: none; }
 
-        /* ── CONVERSATIONS SIDEBAR ── */
-        .conv-item {
-            padding: 8px 10px;
-            border-radius: 8px;
-            cursor: pointer;
-            margin-bottom: 4px;
-            border-left: 2px solid transparent;
-            transition: all 0.15s;
-        }
-        .conv-item:hover { background: rgba(255,255,255,0.08); }
-        .conv-item.active { background: rgba(212,163,115,0.15); border-left-color: #d4a373; }
-        .conv-titre {
-            font-size: 0.83rem;
-            color: #fefae0;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 180px;
-        }
-        .conv-date { font-size: 0.72rem; color: rgba(254,250,224,0.45); margin-top: 2px; }
-
         /* ── BOUTON DÉCONNEXION ── */
         #btn-deconnexion {
             background: rgba(255,255,255,0.12);
@@ -409,6 +411,9 @@
             <div style="display:flex; align-items:center; gap:8px;">
                 <button id="btn-theme" onclick="toggleTheme()" title="Changer le thème">🌙</button>
             </div>
+            <div style="display:flex; align-items:center; gap:8px;">
+                <button id="btn-theme" onclick="toggleTheme()" title="Changer le thème">🌙</button>
+            </div>
             <!-- langue-switch caché (géré via sidebar) -->
             <div id="langue-switch" style="display:none;">
                 <button class="btn-langue active" data-lang="fr">Français</button>
@@ -426,6 +431,7 @@
                 <p class="aide" data-translate="keyboardHelp">Clique sur les lettres pour écrire en Fon</p>
 
                 <div id="clavier-body">
+                <div id="clavier-body">
                 <textarea
                     id="texte-fon"
                     rows="3"
@@ -441,6 +447,7 @@
                 </div>
 
                 <div id="clavier-container"></div>
+                </div><!-- fin clavier-body -->
                 </div><!-- fin clavier-body -->
             </section>
 
@@ -494,9 +501,7 @@
     <script src="ia.js"></script>
 
     <script>
-        /* ══════════════════════════════════════
-           TRADUCTIONS
-        ══════════════════════════════════════ */
+        /* ── TRADUCTIONS ── */
         const translations = {
             fr: {
                 appTitle:            "🌍 IA en Fon",
@@ -530,34 +535,32 @@
             }
         };
 
-        /* ── setLanguage UNIQUE et complet ── */
         function setLanguage(lang) {
-            // 1. Traduire tous les éléments data-translate
             document.querySelectorAll('[data-translate]').forEach(el => {
                 const key = el.getAttribute('data-translate');
                 if (translations[lang]?.[key]) el.textContent = translations[lang][key];
             });
-            // 2. Traduire les placeholders
             document.querySelectorAll('[data-translate-placeholder]').forEach(el => {
                 const key = el.getAttribute('data-translate-placeholder');
                 if (translations[lang]?.[key]) el.placeholder = translations[lang][key];
             });
-            // 3. Mettre à jour les boutons langue actifs
+            localStorage.setItem('preferred_lang', lang);
             document.querySelectorAll('.btn-langue').forEach(b =>
                 b.classList.toggle('active', b.getAttribute('data-lang') === lang)
             );
-            // 4. Traduire les boutons du clavier Fon
-            if (typeof traduireClavier === 'function') traduireClavier(lang);
-            // 5. Sauvegarder et mettre à jour le message de bienvenue
-            localStorage.setItem('preferred_lang', lang);
             if (typeof mettreAJourMessageBienvenue === 'function') mettreAJourMessageBienvenue(lang);
         }
 
-        /* ══════════════════════════════════════
-           SIDEBAR + SWIPE
-        ══════════════════════════════════════ */
-        const sidebar  = document.getElementById('sidebar');
-        const overlay  = document.getElementById('sidebar-overlay');
+        document.querySelectorAll('.btn-langue').forEach(btn => {
+            btn.addEventListener('click', e => {
+                setLanguage(e.currentTarget.getAttribute('data-lang'));
+            });
+        });
+    </script>
+    <script>
+        /* ── Sidebar + Swipe ── */
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('sidebar-overlay');
         const hamburger = document.getElementById('btn-hamburger');
 
         function toggleSidebar() {
@@ -566,24 +569,25 @@
             hamburger.classList.toggle('hamburger-open');
         }
 
+        // Swipe gesture pour ouvrir/fermer la sidebar
         let touchStartX = 0;
         document.addEventListener('touchstart', e => { touchStartX = e.touches[0].clientX; }, { passive: true });
         document.addEventListener('touchend', e => {
             const dx = e.changedTouches[0].clientX - touchStartX;
-            if (dx > 60 && touchStartX < 40) toggleSidebar();
-            if (dx < -60 && sidebar.classList.contains('open')) toggleSidebar();
+            if (dx > 60 && touchStartX < 40) toggleSidebar();          // swipe droite → ouvrir
+            if (dx < -60 && sidebar.classList.contains('open')) toggleSidebar(); // swipe gauche → fermer
         }, { passive: true });
 
-        /* ══════════════════════════════════════
-           THÈME SOMBRE / CLAIR
-        ══════════════════════════════════════ */
+        /* ── Thème sombre/clair ── */
         const btnTheme = document.getElementById('btn-theme');
         function toggleTheme() {
             document.body.classList.toggle('dark');
             const isDark = document.body.classList.contains('dark');
             localStorage.setItem('theme', isDark ? 'dark' : 'light');
-            if (btnTheme) btnTheme.textContent = isDark ? '☀️' : '🌙';
+            btnTheme.textContent = isDark ? '☀️' : '🌙';
         }
+
+        // Appliquer le thème sauvegardé
         (function() {
             const saved = localStorage.getItem('theme');
             if (saved === 'dark') {
@@ -592,124 +596,32 @@
             }
         })();
 
-        /* ══════════════════════════════════════
-           TOGGLE CLAVIER
-        ══════════════════════════════════════ */
+        /* ── Toggle clavier ── */
         function toggleClavier() {
             const body = document.getElementById('clavier-body');
             const btn  = document.getElementById('clavier-toggle-btn');
-            if (!body) return;
             body.classList.toggle('ferme');
             btn.textContent = body.classList.contains('ferme') ? '▼ Afficher clavier' : '▲ Masquer';
         }
 
-        /* ══════════════════════════════════════
-           GESTION DES CONVERSATIONS
-        ══════════════════════════════════════ */
-
-        function obtenirConversations() {
-            return JSON.parse(localStorage.getItem('conversations_list') || '[]');
-        }
-
-        function sauvegarderListeConversations(convs) {
-            localStorage.setItem('conversations_list', JSON.stringify(convs));
-        }
-
-        function sauvegarderConversationActuelle() {
-            const hist = JSON.parse(localStorage.getItem('chat_history') || '[]');
-            if (hist.length === 0) return;
-
-            const convs  = obtenirConversations();
-            const actifId = localStorage.getItem('active_conv_id');
-
-            // Titre = 1er message utilisateur (tronqué à 35 chars)
-            const premierMsg = hist.find(m => m.role === 'user');
-            const titre = premierMsg
-                ? premierMsg.parts[0].text.slice(0, 35) + (premierMsg.parts[0].text.length > 35 ? '…' : '')
-                : 'Conversation';
-
-            if (actifId) {
-                const idx = convs.findIndex(c => c.id === actifId);
-                if (idx >= 0) {
-                    convs[idx].messages = hist;
-                    convs[idx].titre    = titre;
-                } else {
-                    convs.unshift({ id: actifId, titre, timestamp: Date.now(), messages: hist });
-                }
-            } else {
-                const id = 'conv_' + Date.now();
-                localStorage.setItem('active_conv_id', id);
-                convs.unshift({ id, titre, timestamp: Date.now(), messages: hist });
+        /* ── Effacer historique ── */
+        function effacerHistorique() {
+            if (confirm("Voulez-vous vraiment effacer l'historique des conversations ?")) {
+                localStorage.removeItem('chat_history');
+                document.getElementById('messages').innerHTML = '';
+                if (typeof afficherMessageParDefaut === 'function') afficherMessageParDefaut();
+                toggleSidebar();
             }
-            sauvegarderListeConversations(convs);
         }
 
-        function chargerConversations() {
-            const convs  = obtenirConversations();
-            const liste  = document.getElementById('liste-conversations');
-            const actifId = localStorage.getItem('active_conv_id');
-            if (!liste) return;
-
-            if (convs.length === 0) {
-                liste.innerHTML = '<p style="font-size:0.8rem;opacity:0.45;text-align:center;padding:10px;">Aucune conversation sauvegardée</p>';
-                return;
-            }
-
-            liste.innerHTML = convs.map(conv => {
-                const d = new Date(conv.timestamp);
-                const dateStr = d.toLocaleDateString('fr-FR', { day: '2-digit', month: 'short' });
-                const isActive = conv.id === actifId;
-                return `<div class="conv-item ${isActive ? 'active' : ''}" onclick="chargerConversation('${conv.id}')">
-                            <div class="conv-titre">${conv.titre}</div>
-                            <div class="conv-date">${dateStr}</div>
-                        </div>`;
-            }).join('');
+        /* ── Langue via sidebar ── */
+        function setLanguage(lang) {
+            localStorage.setItem('preferred_lang', lang);
+            document.querySelectorAll('.btn-langue').forEach(b => {
+                b.classList.toggle('active', b.dataset.lang === lang);
+            });
+            if (typeof mettreAJourMessageBienvenue === 'function') mettreAJourMessageBienvenue(lang);
         }
-
-        function chargerConversation(id) {
-            sauvegarderConversationActuelle();
-            const convs = obtenirConversations();
-            const conv  = convs.find(c => c.id === id);
-            if (!conv) return;
-
-            localStorage.setItem('chat_history', JSON.stringify(conv.messages));
-            localStorage.setItem('active_conv_id', id);
-
-            if (typeof chargerHistoriqueInterface === 'function') chargerHistoriqueInterface();
-            chargerConversations();
-            toggleSidebar();
-        }
-
-        function nouvelleConversation() {
-            sauvegarderConversationActuelle();
-
-            // Réinitialiser la conversation courante
-            localStorage.removeItem('chat_history');
-            localStorage.removeItem('active_conv_id');
-
-            // Vider l'interface
-            document.getElementById('messages').innerHTML = '';
-            if (typeof afficherMessageParDefaut === 'function') afficherMessageParDefaut();
-
-            chargerConversations();
-            toggleSidebar();
-        }
-
-        function effacerToutesConversations() {
-            if (!confirm('Effacer toutes les conversations ?')) return;
-            localStorage.removeItem('conversations_list');
-            localStorage.removeItem('chat_history');
-            localStorage.removeItem('active_conv_id');
-            document.getElementById('messages').innerHTML = '';
-            if (typeof afficherMessageParDefaut === 'function') afficherMessageParDefaut();
-            chargerConversations();
-            toggleSidebar();
-        }
-
-        // Charger les conversations dans la sidebar à l'ouverture de l'app
-        document.addEventListener('DOMContentLoaded', () => {
-            chargerConversations();
-        });
     </script>
 </body>
 </html>
