@@ -186,8 +186,10 @@ function afficherMessageParDefaut() {
     afficherMessage(msg, 'ia');
 }
 
+/* ── FIX : vérifier localStorage au lieu de historique en mémoire ── */
 function mettreAJourMessageBienvenue(lang) {
-    if (historique.length === 0) {
+    const histLocal = JSON.parse(localStorage.getItem('chat_history') || '[]');
+    if (histLocal.length === 0) {
         zoneMessages.innerHTML = '';
         afficherMessageParDefaut();
     }
@@ -199,6 +201,29 @@ function setChargement(actif) {
     if (btnEnvoyer)  btnEnvoyer.disabled  = actif;
     if (champSaisie) champSaisie.disabled = actif;
     if (btnMicro)    btnMicro.disabled    = actif;
+}
+
+/* ── FIX : Retry automatique (3 tentatives) si rate limit Gemini ── */
+async function fetchAvecRetry(url, options, maxTentatives = 3) {
+    for (let tentative = 1; tentative <= maxTentatives; tentative++) {
+        try {
+            const res = await fetch(url, options);
+            if ((res.status === 429 || res.status >= 500) && tentative < maxTentatives) {
+                const attente = tentative * 2000;
+                console.warn(`Tentative ${tentative} échouée (${res.status}). Réessai dans ${attente/1000}s...`);
+                await new Promise(r => setTimeout(r, attente));
+                continue;
+            }
+            return res;
+        } catch (errReseau) {
+            if (tentative < maxTentatives) {
+                console.warn(`Tentative ${tentative} — erreur réseau. Réessai...`);
+                await new Promise(r => setTimeout(r, 2000));
+                continue;
+            }
+            throw errReseau;
+        }
+    }
 }
 
 /* ── Envoyer message ── */
@@ -228,7 +253,6 @@ async function envoyerMessage(texteForce = null) {
         sauvegarderHistorique();
     }
 
-    // Sauvegarder la conversation dans la liste
     if (typeof sauvegarderConvActuelle === 'function') sauvegarderConvActuelle();
 
     setChargement(true);
@@ -240,7 +264,7 @@ async function envoyerMessage(texteForce = null) {
             { role: 'user', parts: [{ text: msgEnvoye }] }
         ];
 
-        const response = await fetch('/api/chat', {
+        const response = await fetchAvecRetry('/api/chat', {
             method: 'POST',
             headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({
