@@ -30,6 +30,19 @@ const LABELS_ACTIONS = {
 let majuscule = false;
 const textarea = document.getElementById('texte-fon');
 
+/* ── FIX Bug 4 : Synchroniser les suggestions du clavier natif ──
+   Sur mobile, le clavier système peut modifier le textarea via IME/suggestions
+   sans déclencher les events habituels. On surveille avec 'input' pour
+   s'assurer que la valeur affichée est toujours synchronisée. */
+if (textarea) {
+    textarea.addEventListener('compositionend', () => {
+        // Force la mise à jour de la valeur après une composition IME
+        const val = textarea.value;
+        textarea.value = '';
+        textarea.value = val;
+    });
+}
+
 function creerTouche(lettre, type = 'normal') {
   const btn = document.createElement('button');
   btn.className = 'touche' + (type !== 'normal' ? ' ' + type : '');
@@ -147,12 +160,23 @@ document.getElementById('btn-effacer-tout').addEventListener('click', () => {
 
 // Envoyer vers l'IA
 document.getElementById('btn-envoyer-ia').addEventListener('click', () => {
+  // FIX Bug 5 : lire la valeur AVANT tout, puis vider APRÈS envoi
   const texte = textarea.value.trim();
-  if (!texte) return;
-  const champChat = document.getElementById('saisie-message');
-  champChat.value = texte;
-  document.getElementById('btn-envoyer').click();
+  if (!texte) {
+    alert('Le champ du clavier Fon est vide !');
+    return;
+  }
+  // Vider le textarea Fon AVANT de déclencher l'envoi IA
+  // pour éviter l'affichage "champ vide" pendant le traitement
   textarea.value = '';
+  // Utiliser envoyerMessage directement si disponible (plus fiable que click)
+  if (typeof envoyerMessage === 'function') {
+    envoyerMessage(texte);
+  } else {
+    const champChat = document.getElementById('saisie-message');
+    champChat.value = texte;
+    document.getElementById('btn-envoyer').click();
+  }
 });
 
 construireClavier();

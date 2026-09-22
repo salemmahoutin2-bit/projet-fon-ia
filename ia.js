@@ -186,12 +186,40 @@ function afficherMessageParDefaut() {
     afficherMessage(msg, 'ia');
 }
 
-/* ── FIX : vérifier localStorage au lieu de historique en mémoire ── */
+/* ── FIX Bug 3 : Mise à jour langue + notification sur les messages existants ── */
 function mettreAJourMessageBienvenue(lang) {
     const histLocal = JSON.parse(localStorage.getItem('chat_history') || '[]');
     if (histLocal.length === 0) {
+        // Pas d'historique : afficher le message de bienvenue dans la nouvelle langue
         zoneMessages.innerHTML = '';
         afficherMessageParDefaut();
+    } else {
+        // Il y a des messages : on ne peut pas re-traduire les réponses déjà reçues de l'IA
+        // (elles ont été générées dans une langue précise).
+        // On affiche une note informative discrète dans la nouvelle langue.
+        const noteExistante = document.getElementById('note-changement-langue');
+        if (noteExistante) noteExistante.remove();
+
+        const note = document.createElement('div');
+        note.id = 'note-changement-langue';
+        note.style.cssText = `
+            text-align: center;
+            font-size: 0.78rem;
+            color: var(--texte-gris);
+            background: rgba(26,107,74,0.08);
+            border: 1px dashed rgba(26,107,74,0.25);
+            border-radius: 8px;
+            padding: 6px 12px;
+            margin: 6px 0;
+        `;
+        note.textContent = lang === 'fon'
+            ? "🌐 Gbè lɛliɖó → Fɔngbè. Xó e wlan wɛ ɖò aga lɛ ka na ɖexlɛ́ ɖò gbè yɔyɔ̌ mɛ ǎ."
+            : "🌐 Langue changée → Français. Les messages précédents restent dans leur langue d'origine.";
+        zoneMessages.appendChild(note);
+        zoneMessages.scrollTop = zoneMessages.scrollHeight;
+
+        // La note disparaît après 5 secondes
+        setTimeout(() => { if (note.parentNode) note.remove(); }, 5000);
     }
 }
 
@@ -203,13 +231,14 @@ function setChargement(actif) {
     if (btnMicro)    btnMicro.disabled    = actif;
 }
 
-/* ── FIX : Retry automatique (3 tentatives) si rate limit Gemini ── */
+/* ── FIX Bug 6 & 7 : Retry automatique + délai réduit ── */
 async function fetchAvecRetry(url, options, maxTentatives = 3) {
     for (let tentative = 1; tentative <= maxTentatives; tentative++) {
         try {
             const res = await fetch(url, options);
-            if ((res.status === 429 || res.status >= 500) && tentative < maxTentatives) {
-                const attente = tentative * 2000;
+            // Retry uniquement sur 429 (rate limit) ou 503 (indisponible)
+            if ((res.status === 429 || res.status === 503) && tentative < maxTentatives) {
+                const attente = tentative * 1000; // délai réduit : 1s, 2s au lieu de 2s, 4s
                 console.warn(`Tentative ${tentative} échouée (${res.status}). Réessai dans ${attente/1000}s...`);
                 await new Promise(r => setTimeout(r, attente));
                 continue;
@@ -218,12 +247,53 @@ async function fetchAvecRetry(url, options, maxTentatives = 3) {
         } catch (errReseau) {
             if (tentative < maxTentatives) {
                 console.warn(`Tentative ${tentative} — erreur réseau. Réessai...`);
-                await new Promise(r => setTimeout(r, 2000));
+                await new Promise(r => setTimeout(r, 800));
                 continue;
             }
             throw errReseau;
         }
     }
+}
+
+/* ── FIX Bug 7 : Affichage progressif (effet streaming) ── */
+function afficherMessageProgressif(texte, auteur) {
+    const divMessage = document.createElement('div');
+    divMessage.className = 'message ' + (auteur === 'user' ? 'msg-user' : 'msg-ia');
+
+    const avatar = document.createElement('div');
+    avatar.className = auteur === 'ia' ? 'avatar-ia' : 'avatar-user';
+    avatar.textContent = auteur === 'ia' ? '🤖' : '👤';
+    divMessage.appendChild(avatar);
+
+    const bulle = document.createElement('div');
+    bulle.className = 'bulle';
+
+    const contenu = document.createElement('span');
+    bulle.appendChild(contenu);
+
+    const meta = document.createElement('div');
+    meta.className = 'bulle-meta';
+    meta.textContent = obtenirHeure();
+    bulle.appendChild(meta);
+
+    divMessage.appendChild(bulle);
+    zoneMessages.appendChild(divMessage);
+    zoneMessages.scrollTop = zoneMessages.scrollHeight;
+
+    // Affichage progressif caractère par caractère (effet "frappe")
+    let i = 0;
+    const vitesse = 8; // ms entre chaque caractère — très rapide
+    function ecrireCaractere() {
+        if (i < texte.length) {
+            // Ajouter les caractères par petits groupes pour être plus rapide
+            const groupe = texte.slice(i, i + 3);
+            contenu.innerHTML += groupe.replace(/\n/g, '<br>');
+            i += 3;
+            zoneMessages.scrollTop = zoneMessages.scrollHeight;
+            setTimeout(ecrireCaractere, vitesse);
+        }
+    }
+    ecrireCaractere();
 }
 
 /* ── Envoyer message ── */
@@ -278,7 +348,8 @@ async function envoyerMessage(texteForce = null) {
         if (!donnees.candidates?.length) throw new Error("Aucune réponse de l'IA.");
 
         const texteIA = donnees.candidates[0].content.parts[0].text;
-        afficherMessage(texteIA, 'ia');
+        // FIX Bug 7 : affichage progressif pour une réponse qui semble instantanée
+        afficherMessageProgressif(texteIA, 'ia');
 
         historique.push({ role: 'model', parts: [{ text: texteIA }] });
         sauvegarderHistorique();
@@ -288,12 +359,11 @@ async function envoyerMessage(texteForce = null) {
     } catch (erreur) {
         console.error('Erreur IA:', erreur);
         const lang = localStorage.getItem('preferred_lang') || 'fr';
-        afficherMessage(
-            lang === 'fon'
-                ? "Nǔɖé bléwun wɛ jɛ, Kɛ́n mɛ."
-                : "Désolé, une erreur est survenue lors de la communication avec le serveur.",
-            'ia'
-        );
+        // FIX Bug 6 : message d'erreur plus clair avec conseil
+        const msgErreur = lang === 'fon'
+            ? "Nǔɖé bléwun wɛ jɛ. Kɛ́n mɛ, bo sɛ́n tɔn dó gán."
+            : "⚠️ Connexion interrompue. Vérifie ta connexion internet et réessaie dans quelques secondes.";
+        afficherMessage(msgErreur, 'ia');
         if (texte) historique.pop();
     }
 

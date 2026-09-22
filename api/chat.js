@@ -15,22 +15,35 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: "Le champ 'contents' est manquant ou vide." });
         }
 
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3.6-flash:generateContent?key=${apiKey}`;
+        // FIX Bug 7 : gemini-2.0-flash est le modèle le plus rapide disponible
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
 
         const payload = {
             contents: contents,
             system_instruction: system_instruction || {
                 parts: [{ text: "Tu es un assistant utile." }]
+            },
+            // FIX Bug 7 : paramètres pour réponse plus rapide
+            generationConfig: {
+                maxOutputTokens: 1024,   // limiter la longueur max pour réduire le délai
+                temperature: 0.7,
+                topP: 0.9
             }
         };
+
+        // FIX Bug 6 : timeout de 20 secondes pour éviter l'attente infinie
+        const controller = new AbortController();
+        const timeoutId = setTimeout(() => controller.abort(), 20000);
 
         const apiResponse = await fetch(url, {
             method: 'POST',
             headers: {
                 'Content-Type': 'application/json'
             },
-            body: JSON.stringify(payload)
+            body: JSON.stringify(payload),
+            signal: controller.signal
         });
+        clearTimeout(timeoutId);
 
         const data = await apiResponse.json();
 
@@ -43,6 +56,10 @@ export default async function handler(req, res) {
 
     } catch (error) {
         console.error('Erreur Serveur Vercel:', error);
+        // FIX Bug 6 : distinguer timeout et autres erreurs
+        if (error.name === 'AbortError') {
+            return res.status(504).json({ error: 'Délai dépassé : Gemini n\'a pas répondu à temps. Réessaie.' });
+        }
         return res.status(500).json({ error: error.message || 'Erreur interne du serveur' });
     }
 }

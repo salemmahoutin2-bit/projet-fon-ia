@@ -126,20 +126,34 @@ async function handleRegister() {
     btn.textContent = 'Création en cours...';
     clearMessage();
 
-    const { data, error } = await supabaseClient.auth.signUp({
+    const { data: signUpData, error: signUpError } = await supabaseClient.auth.signUp({
         email,
         password,
         options: { data: { full_name: name } }
     });
 
-    if (error) {
-        showMessage('❌ Erreur : ' + error.message, 'error');
+    if (signUpError) {
+        showMessage('❌ Erreur : ' + signUpError.message, 'error');
         btn.disabled = false;
         btn.textContent = 'Créer mon compte →';
         return;
     }
 
-    showMessage('✅ Compte créé ! Vérifiez votre boîte email pour confirmer votre inscription.', 'success');
+    // Connexion automatique juste après l'inscription
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
+
+    if (error) {
+        // Si la connexion auto échoue (ex: email non confirmé côté Supabase),
+        // on affiche quand même un message de succès et on invite à se connecter
+        showMessage('✅ Compte créé ! Connectez-vous maintenant.', 'success');
+        switchTab('login');
+        btn.disabled = false;
+        btn.textContent = 'Créer mon compte →';
+        return;
+    }
+
+    // Connexion réussie : afficher l'application directement
+    afficherApp(data.user);
     btn.disabled = false;
     btn.textContent = 'Créer mon compte →';
 }
