@@ -271,6 +271,27 @@
             transform: none;
         }
 
+        /* ── LIEN MOT DE PASSE OUBLIÉ ── */
+        .auth-lien-oublie {
+            font-size: 0.82rem;
+            color: #7dd3fc;
+            text-align: center;
+            cursor: pointer;
+            margin-top: 6px;
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+
+        .auth-lien-oublie:hover { color: #f0f9ff; }
+
+        .auth-texte-info {
+            font-size: 0.85rem;
+            color: #dbeafe;
+            text-align: left;
+            margin-bottom: 2px;
+            line-height: 1.4;
+        }
+
         /* ── MESSAGE RETOUR ── */
         .auth-message {
             font-size: 0.85rem;
@@ -393,6 +414,7 @@
                 <input type="email"    class="auth-input" id="login-email"    placeholder="Adresse email" autocomplete="email">
                 <input type="password" class="auth-input" id="login-password" placeholder="Mot de passe"  autocomplete="current-password">
                 <button class="btn-auth-submit" onclick="handleLogin()">Se connecter →</button>
+                <p class="auth-lien-oublie" onclick="afficherFormulaireMdp()">Mot de passe oublié ?</p>
             </div>
 
             <!-- Formulaire Inscription -->
@@ -402,6 +424,22 @@
                 <input type="password" class="auth-input" id="register-password" placeholder="Mot de passe (min. 6 caractères)" autocomplete="new-password">
                 <input type="password" class="auth-input" id="register-confirm"  placeholder="Confirmer le mot de passe"        autocomplete="new-password">
                 <button class="btn-auth-submit" onclick="handleRegister()">Créer mon compte →</button>
+            </div>
+
+            <!-- Formulaire Mot de passe oublié -->
+            <div class="auth-form" id="form-forgot">
+                <p class="auth-texte-info">Entre ton email, on t'envoie un lien pour réinitialiser ton mot de passe.</p>
+                <input type="email" class="auth-input" id="forgot-email" placeholder="Adresse email" autocomplete="email">
+                <button class="btn-auth-submit" onclick="handleForgotPassword()">Envoyer le lien →</button>
+                <p class="auth-lien-oublie" onclick="retourConnexion()">← Retour à la connexion</p>
+            </div>
+
+            <!-- Formulaire Réinitialisation (arrivée depuis le lien reçu par email) -->
+            <div class="auth-form" id="form-reset">
+                <p class="auth-texte-info">Choisis ton nouveau mot de passe.</p>
+                <input type="password" class="auth-input" id="reset-password" placeholder="Nouveau mot de passe (min. 6 caractères)" autocomplete="new-password">
+                <input type="password" class="auth-input" id="reset-confirm"  placeholder="Confirmer le mot de passe" autocomplete="new-password">
+                <button class="btn-auth-submit" onclick="handleResetPassword()">Réinitialiser →</button>
             </div>
 
         </div>
