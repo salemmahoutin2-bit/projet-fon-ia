@@ -15,25 +15,24 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: "Le champ 'contents' est manquant ou vide." });
         }
 
-        // FIX Bug 7 : gemini-2.0-flash est le modèle le plus rapide disponible
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent?key=${apiKey}`;
+        // Modèle stable et rapide sur le tier gratuit
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
 
         const payload = {
             contents: contents,
             system_instruction: system_instruction || {
                 parts: [{ text: "Tu es un assistant utile." }]
             },
-            // FIX Bug 7 : paramètres pour réponse plus rapide
             generationConfig: {
-                maxOutputTokens: 1024,   // limiter la longueur max pour réduire le délai
+                maxOutputTokens: 1024,
                 temperature: 0.7,
                 topP: 0.9
             }
         };
 
-        // FIX Bug 6 : timeout de 20 secondes pour éviter l'attente infinie
+        // Timeout 28s (juste sous la limite Vercel de 30s)
         const controller = new AbortController();
-        const timeoutId = setTimeout(() => controller.abort(), 20000);
+        const timeoutId = setTimeout(() => controller.abort(), 28000);
 
         const apiResponse = await fetch(url, {
             method: 'POST',

@@ -236,8 +236,8 @@ async function fetchAvecRetry(url, options, maxTentatives = 3) {
     for (let tentative = 1; tentative <= maxTentatives; tentative++) {
         try {
             const res = await fetch(url, options);
-            // Retry uniquement sur 429 (rate limit) ou 503 (indisponible)
-            if ((res.status === 429 || res.status === 503) && tentative < maxTentatives) {
+            // Retry sur 429 (rate limit), 503 (indisponible) et 504 (timeout)
+            if ((res.status === 429 || res.status === 503 || res.status === 504) && tentative < maxTentatives) {
                 const attente = tentative * 1000; // délai réduit : 1s, 2s au lieu de 2s, 4s
                 console.warn(`Tentative ${tentative} échouée (${res.status}). Réessai dans ${attente/1000}s...`);
                 await new Promise(r => setTimeout(r, attente));
