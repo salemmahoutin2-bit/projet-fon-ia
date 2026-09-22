@@ -72,8 +72,8 @@
             position: fixed;
             inset: 0;
             background:
-                linear-gradient(135deg, rgba(11,27,20,0.78) 0%, rgba(20,48,35,0.82) 100%),
-                url('https://images.unsplash.com/photo-1547471080-7cc2caa01a7e?auto=format&fit=crop&w=2000&q=90')
+                linear-gradient(135deg, rgba(56,189,248,0.55) 0%, rgba(29,78,216,0.72) 100%),
+                url('https://images.unsplash.com/photo-1734867790637-1716c5b9ab42?auto=format&fit=crop&w=2000&q=90')
                 no-repeat center center / cover;
             display: flex;
             justify-content: center;
@@ -86,21 +86,21 @@
         .auth-wrapper {
             max-width: 620px;
             width: 100%;
-            background: rgba(13,31,23,0.88);
+            background: rgba(12,29,58,0.80);
             backdrop-filter: blur(18px);
             -webkit-backdrop-filter: blur(18px);
-            border: 1px solid rgba(212,163,115,0.45);
+            border: 1px solid rgba(56,189,248,0.45);
             border-radius: 24px;
             padding: 36px 32px;
-            box-shadow: 0 28px 64px rgba(0,0,0,0.65);
-            color: #fefae0;
+            box-shadow: 0 28px 64px rgba(0,0,0,0.55);
+            color: #f0f9ff;
             text-align: center;
             margin: auto;
         }
 
         .auth-badge {
-            background: linear-gradient(135deg, #d4a373, #bc6c25);
-            color: #0d1f17;
+            background: linear-gradient(135deg, #7dd3fc, #1d4ed8);
+            color: #f0f9ff;
             padding: 6px 18px;
             border-radius: 30px;
             font-size: 0.78rem;
@@ -121,27 +121,27 @@
         }
 
         .auth-wrapper h1 span {
-            background: linear-gradient(135deg, #ffb703, #fb8500, #d4a373);
+            background: linear-gradient(135deg, #7dd3fc, #38bdf8, #1d4ed8);
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
         }
 
         .welcome-fon {
             font-size: 0.95rem;
-            color: #e9edc9;
+            color: #e0f2fe;
             font-weight: 500;
             line-height: 1.65;
             margin-bottom: 18px;
-            background: rgba(212,163,115,0.10);
+            background: rgba(56,189,248,0.12);
             padding: 13px 16px;
             border-radius: 12px;
-            border-left: 4px solid #d4a373;
+            border-left: 4px solid #38bdf8;
             text-align: left;
         }
 
         .objectifs-card {
-            background: rgba(8,20,15,0.70);
-            border: 1px solid rgba(212,163,115,0.25);
+            background: rgba(9,22,48,0.65);
+            border: 1px solid rgba(56,189,248,0.25);
             border-radius: 14px;
             padding: 16px 18px;
             margin-bottom: 18px;
@@ -149,12 +149,12 @@
         }
 
         .objectifs-card h3 {
-            color: #d4a373;
+            color: #7dd3fc;
             font-size: 0.85rem;
             margin-bottom: 10px;
             text-transform: uppercase;
             letter-spacing: 1px;
-            border-bottom: 1px solid rgba(212,163,115,0.2);
+            border-bottom: 1px solid rgba(56,189,248,0.2);
             padding-bottom: 6px;
         }
 
@@ -162,7 +162,7 @@
 
         .objectifs-card li {
             font-size: 0.88rem;
-            color: #d8f3dc;
+            color: #dbeafe;
             margin-bottom: 7px;
             display: flex;
             align-items: flex-start;
@@ -172,27 +172,27 @@
 
         .objectifs-card li::before {
             content: "✦";
-            color: #d4a373;
+            color: #38bdf8;
             font-weight: bold;
             flex-shrink: 0;
         }
 
         .creator-info {
             font-size: 0.82rem;
-            color: #d8f3dc;
+            color: #dbeafe;
             margin-bottom: 22px;
         }
 
-        .creator-info strong { color: #d4a373; }
+        .creator-info strong { color: #38bdf8; }
 
         /* ── ONGLETS CONNEXION / INSCRIPTION ── */
         .auth-tabs {
             display: flex;
-            background: rgba(8,20,15,0.55);
+            background: rgba(9,22,48,0.55);
             border-radius: 12px;
             padding: 4px;
             margin-bottom: 18px;
-            border: 1px solid rgba(212,163,115,0.2);
+            border: 1px solid rgba(56,189,248,0.2);
         }
 
         .auth-tab {
@@ -200,7 +200,7 @@
             padding: 10px;
             border: none;
             background: transparent;
-            color: rgba(254,250,224,0.55);
+            color: rgba(240,249,255,0.55);
             border-radius: 9px;
             cursor: pointer;
             font-weight: 600;
@@ -210,9 +210,9 @@
         }
 
         .auth-tab.active {
-            background: linear-gradient(135deg, #d4a373, #bc6c25);
-            color: #0d1f17;
-            box-shadow: 0 3px 10px rgba(212,163,115,0.35);
+            background: linear-gradient(135deg, #38bdf8, #1d4ed8);
+            color: #f0f9ff;
+            box-shadow: 0 3px 10px rgba(56,189,248,0.35);
         }
 
         /* ── FORMULAIRES ── */
@@ -225,11 +225,11 @@
         .auth-form.visible { display: flex; }
 
         .auth-input {
-            background: rgba(8,20,15,0.60);
-            border: 1.5px solid rgba(212,163,115,0.28);
+            background: rgba(9,22,48,0.60);
+            border: 1.5px solid rgba(56,189,248,0.28);
             border-radius: 10px;
             padding: 12px 16px;
-            color: #fefae0;
+            color: #f0f9ff;
             font-size: 0.92rem;
             font-family: 'Plus Jakarta Sans', sans-serif;
             transition: border-color 0.2s, background 0.2s;
@@ -238,15 +238,15 @@
 
         .auth-input:focus {
             outline: none;
-            border-color: #d4a373;
-            background: rgba(8,20,15,0.80);
+            border-color: #38bdf8;
+            background: rgba(9,22,48,0.80);
         }
 
-        .auth-input::placeholder { color: rgba(254,250,224,0.38); }
+        .auth-input::placeholder { color: rgba(240,249,255,0.38); }
 
         .btn-auth-submit {
-            background: linear-gradient(135deg, #d4a373, #bc6c25);
-            color: #0d1f17;
+            background: linear-gradient(135deg, #38bdf8, #1d4ed8);
+            color: #f0f9ff;
             border: none;
             padding: 13px 26px;
             border-radius: 40px;
@@ -254,7 +254,7 @@
             font-size: 0.92rem;
             cursor: pointer;
             transition: all 0.28s ease;
-            box-shadow: 0 5px 18px rgba(212,163,115,0.32);
+            box-shadow: 0 5px 18px rgba(56,189,248,0.32);
             font-family: 'Plus Jakarta Sans', sans-serif;
             margin-top: 4px;
             letter-spacing: 0.3px;
@@ -262,7 +262,7 @@
 
         .btn-auth-submit:hover {
             transform: translateY(-2px);
-            box-shadow: 0 8px 24px rgba(212,163,115,0.52);
+            box-shadow: 0 8px 24px rgba(56,189,248,0.52);
         }
 
         .btn-auth-submit:disabled {
@@ -296,6 +296,15 @@
 
         /* ── APPLICATION CACHÉE AU DÉPART ── */
         #app-container { display: none; }
+
+        /* ── FOND DE L'INTERFACE DE CHAT (Ganvié, Bénin) ── */
+        #messages {
+            background:
+                linear-gradient(135deg, rgba(9,22,48,0.85) 0%, rgba(29,78,216,0.75) 100%),
+                url('https://images.unsplash.com/photo-1734867744216-441a982a16f2?auto=format&fit=crop&w=1600&q=80')
+                no-repeat center center / cover;
+            border-radius: 14px;
+        }
 
         /* ── CONVERSATIONS SIDEBAR ── */
         .conv-item {
