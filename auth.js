@@ -31,6 +31,9 @@ function afficherApp(user) {
     document.getElementById('auth-overlay').style.display = 'none';
     document.getElementById('app-container').style.display = 'block';
 
+    // Utilisé par ia.js pour ne charger/sauvegarder que l'historique de CE compte
+    window.currentUserId = user?.id || null;
+
     // Afficher le nom de l'utilisateur dans le header
     const userNameEl = document.getElementById('user-name');
     if (userNameEl && user) {
@@ -42,6 +45,7 @@ function afficherApp(user) {
     const savedLang = localStorage.getItem('preferred_lang') || 'fr';
     if (typeof setLanguage === 'function') setLanguage(savedLang);
     if (typeof chargerHistoriqueInterface === 'function') chargerHistoriqueInterface();
+    if (typeof chargerConversations === 'function') chargerConversations();
 }
 
 /* ─────────────────────────────────────────────
@@ -251,7 +255,14 @@ async function handleResetPassword() {
 ───────────────────────────────────────────── */
 async function handleLogout() {
     if (!confirm('Voulez-vous vraiment vous déconnecter ?')) return;
-    await supabaseClient.auth.signOut();
+    window.currentUserId = null;
+
+    try {
+        await supabaseClient.auth.signOut();
+    } catch (erreur) {
+        console.warn('Déconnexion : erreur réseau ignorée, on recharge quand même.', erreur);
+    }
+
     location.reload();
 }
 

@@ -64,7 +64,7 @@ body {
   background-color: var(--bg-body);
   background-image:
     linear-gradient(135deg, rgba(56,189,248,0.55) 0%, rgba(29,78,216,0.72) 100%),
-    url('https://images.unsplash.com/photo-1734867790637-1716c5b9ab42?auto=format&fit=crop&w=2000&q=90');
+    url('https://images.unsplash.com/photo-1693700244079-5c42b5d45897?auto=format&fit=crop&w=2000&q=90');
   background-repeat: no-repeat;
   background-size: cover;
   background-attachment: fixed;
@@ -78,7 +78,7 @@ body {
 body.dark {
   background-image:
     linear-gradient(135deg, rgba(15,35,66,0.80) 0%, rgba(12,29,58,0.88) 100%),
-    url('https://images.unsplash.com/photo-1734867790637-1716c5b9ab42?auto=format&fit=crop&w=2000&q=90');
+    url('https://images.unsplash.com/photo-1693700244079-5c42b5d45897?auto=format&fit=crop&w=2000&q=90');
   background-repeat: no-repeat;
   background-size: cover;
   background-attachment: fixed;

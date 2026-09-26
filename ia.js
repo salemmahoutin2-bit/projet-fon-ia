@@ -34,7 +34,15 @@ const btnEffacerHist = document.getElementById('btn-effacer-historique');
 const inputFichier   = document.getElementById('input-fichier');
 const apercuFichiers = document.getElementById('apercu-fichiers');
 
-let historique = JSON.parse(localStorage.getItem('chat_history')) || [];
+// L'historique est chargé par utilisateur (voir getHistoryKey) dès que
+// afficherApp() connaît l'utilisateur connecté — pas au chargement du script.
+let historique = [];
+
+// Clé localStorage propre à chaque compte connecté, pour ne jamais mélanger
+// l'historique d'un utilisateur avec celui d'un autre sur le même appareil.
+function getHistoryKey() {
+    return 'chat_history_' + (window.currentUserId || 'invite');
+}
 
 // Fichiers en attente d'envoi
 let fichiersEnAttente = [];
@@ -168,6 +176,7 @@ function supprimerSkeleton() {
 
 /* ── Charger historique ── */
 function chargerHistoriqueInterface() {
+    historique = JSON.parse(localStorage.getItem(getHistoryKey())) || [];
     zoneMessages.innerHTML = '';
     if (historique.length === 0) {
         afficherMessageParDefaut();
@@ -188,7 +197,7 @@ function afficherMessageParDefaut() {
 
 /* ── FIX Bug 3 : Mise à jour langue + notification sur les messages existants ── */
 function mettreAJourMessageBienvenue(lang) {
-    const histLocal = JSON.parse(localStorage.getItem('chat_history') || '[]');
+    const histLocal = JSON.parse(localStorage.getItem(getHistoryKey()) || '[]');
     if (histLocal.length === 0) {
         // Pas d'historique : afficher le message de bienvenue dans la nouvelle langue
         zoneMessages.innerHTML = '';
@@ -372,7 +381,7 @@ async function envoyerMessage(texteForce = null) {
 }
 
 function sauvegarderHistorique() {
-    localStorage.setItem('chat_history', JSON.stringify(historique));
+    localStorage.setItem(getHistoryKey(), JSON.stringify(historique));
 }
 
 /* ── Effacer historique ── */
@@ -380,7 +389,7 @@ if (btnEffacerHist) {
     btnEffacerHist.addEventListener('click', () => {
         if (confirm("Voulez-vous vraiment effacer l'historique ?")) {
             historique = [];
-            localStorage.removeItem('chat_history');
+            localStorage.removeItem(getHistoryKey());
             zoneMessages.innerHTML = '';
             afficherMessageParDefaut();
         }

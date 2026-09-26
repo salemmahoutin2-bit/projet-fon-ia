@@ -15,8 +15,8 @@ export default async function handler(req, res) {
             return res.status(400).json({ error: "Le champ 'contents' est manquant ou vide." });
         }
 
-        // Modèle stable et rapide sur le tier gratuit
-        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`;
+        // Gemini 3 Flash — le plus rapide de la gamme Gemini 3, tier gratuit
+        const url = `https://generativelanguage.googleapis.com/v1beta/models/gemini-3-flash-preview:generateContent?key=${apiKey}`;
 
         const payload = {
             contents: contents,
