@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Fon IA — Apprendre le Fon</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:'Segoe UI',Arial,sans-serif;min-height:100vh;color:#0f172a;padding:20px;
+background:radial-gradient(circle at 10% 0,#e0f2fe 0,transparent 40%),#fff}
+.w{max-width:720px;margin:0 auto}
+.haut{display:flex;justify-content:space-between;align-items:center;margin-bottom:22px}
+.haut a{color:#1d4ed8;text-decoration:none;font-weight:600}
+h1{font-size:1.6rem;margin-bottom:6px}
+.card{background:#fff;border:1px solid #e2e8f0;border-radius:20px;padding:20px;margin-bottom:16px;box-shadow:0 8px 24px rgba(29,78,216,.07)}
+.mj{background:linear-gradient(135deg,#e0f2fe,#dbeafe);border:none}
+.mj small{color:#1d4ed8;font-weight:700;text-transform:uppercase;letter-spacing:1px}
+.gros{font-size:2rem;font-weight:700;margin:6px 0}
+.fr{color:#64748b}
+.themes{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:12px}
+button{font:inherit;cursor:pointer;border:none}
+.theme{background:#fff;border:1px solid #e2e8f0;border-radius:16px;padding:18px;text-align:left;transition:.2s}
+.theme:hover{border-color:#38bdf8;transform:translateY(-3px);box-shadow:0 8px 20px rgba(29,78,216,.12)}
+.theme b{display:block;font-size:1.05rem}.theme span{color:#94a3b8;font-size:.85rem}
+.mot{display:flex;justify-content:space-between;align-items:center;padding:12px 0;border-bottom:1px solid #f1f5f9;gap:10px}
+.mot:last-child{border:none}
+.f{font-size:1.15rem;font-weight:700}
+.tag{font-size:.7rem;background:#fef3c7;color:#92400e;border-radius:8px;padding:2px 6px;margin-left:6px;font-weight:600}
+.btn{background:linear-gradient(135deg,#38bdf8,#1d4ed8);color:#fff;border-radius:30px;padding:10px 20px;font-weight:700}
+.btn.sec{background:#f1f5f9;color:#1d4ed8}
+.opt{display:block;width:100%;text-align:left;background:#fff;border:1.5px solid #e2e8f0;border-radius:12px;padding:12px 14px;margin-top:8px}
+.opt:hover{border-color:#38bdf8}.ok{background:#dcfce7!important;border-color:#22c55e!important}.ko{background:#fee2e2!important;border-color:#ef4444!important}
+.note{font-size:.8rem;color:#94a3b8;margin-top:18px;text-align:center}
+</style>
+</head>
+<body>
+<div class="w">
+  <div class="haut"><a href="accueil.html">← Accueil</a><a href="index.html#ia">Parler avec l'IA</a></div>
+  <h1>📚 Apprendre le Fon</h1>
+  <p class="fr" style="margin-bottom:18px">Choisis un thème, étudie les mots, puis teste-toi.</p>
+  <div id="vue"></div>
+  <p class="note">Les mots marqués « à valider » n'ont pas encore été relus par un locuteur natif.</p>
+</div>
+<script>
+/* ===== CONTENU À COMPLÉTER / CORRIGER =====
+   m = mot en Fon, f = français, audio = chemin d'un fichier (ex: 'audio/bonjour.mp3'), ok = true quand relu par un locuteur natif */
+const THEMES=[
+ {id:'salut',nom:'Salutations',ico:'👋',mots:[
+  {m:'koudo zanzan',f:'Bonjour',ok:false},
+  {m:'édabô',f:'Au revoir',ok:false},
+  {m:'énantchè nouwé',f:'Merci',ok:false},
+  {m:'kuwabô',f:'Bienvenue',ok:false},
+  {m:'nin noulèdégbon',f:'Comment ça va ?',ok:false}]},
+ {id:'nombres',nom:'Les nombres',ico:'🔢',mots:[]},
+ {id:'marche',nom:'Au marché',ico:'🧺',mots:[]},
+ {id:'famille',nom:'La famille',ico:'👨‍👩‍👧',mots:[]}
+];
+/* ========================================== */
+const $=s=>document.querySelector(s),vue=$('#vue');
+if(!Object.keys(localStorage).some(k=>/^sb-.*-auth-token$/.test(k)))location.replace('index.html');
+const tous=THEMES.flatMap(t=>t.mots);
+function lire(src){if(src)new Audio(src).play().catch(()=>{});}
+function accueil(){
+  let h='';
+  if(tous.length){const j=Math.floor(Date.now()/864e5),w=tous[j%tous.length];
+    h+=`<div class="card mj"><small>Mot du jour</small><div class="gros">${w.m}</div><div class="fr">${w.f}</div>${w.audio?`<button class="btn" style="margin-top:10px" onclick="lire('${w.audio}')">🔊 Écouter</button>`:''}</div>`;}
+  h+='<div class="themes">'+THEMES.map(t=>`<button class="theme" onclick="theme('${t.id}')"><div style="font-size:1.8rem">${t.ico}</div><b>${t.nom}</b><span>${t.mots.length?t.mots.length+' mots':'Bientôt'}</span></button>`).join('')+'</div>';
+  vue.innerHTML=h;
+}
+function theme(id){
+  const t=THEMES.find(x=>x.id===id);
+  vue.innerHTML=`<div class="card"><h2>${t.ico} ${t.nom}</h2>`+(t.mots.length?t.mots.map(w=>`<div class="mot"><div><div class="f">${w.m}${w.ok?'':'<span class="tag">à valider</span>'}</div><div class="fr">${w.f}</div></div>${w.audio?`<button class="btn sec" onclick="lire('${w.audio}')">🔊</button>`:''}</div>`).join(''):'<p class="fr" style="margin-top:10px">Les mots de ce thème arrivent bientôt.</p>')
+   +`</div><button class="btn sec" onclick="accueil()">← Thèmes</button> `+(t.mots.length?`<button class="btn" onclick="quiz('${id}')">Faire le quiz</button>`:'');
+}
+let Q;
+function quiz(id){
+  const t=THEMES.find(x=>x.id===id);
+  Q={t,q:[...t.mots].sort(()=>Math.random()-.5),i:0,s:0};question();
+}
+function question(){
+  if(Q.i>=Q.q.length){vue.innerHTML=`<div class="card"><h2>Score : ${Q.s} / ${Q.q.length}</h2><p class="fr">${Q.s===Q.q.length?'Bravo, parfait ! 🎉':'Revois la leçon et réessaie.'}</p></div><button class="btn sec" onclick="theme('${Q.t.id}')">Revoir la leçon</button> <button class="btn" onclick="quiz('${Q.t.id}')">Recommencer</button>`;return;}
+  const w=Q.q[Q.i],autres=tous.filter(x=>x!==w).sort(()=>Math.random()-.5).slice(0,3);
+  const opts=[w,...autres].sort(()=>Math.random()-.5);
+  vue.innerHTML=`<div class="card"><small class="fr">Question ${Q.i+1} / ${Q.q.length}</small><div class="gros">${w.m}</div><div class="fr">Que veut dire ce mot ?</div>${opts.map(o=>`<button class="opt" onclick="rep(this,${o===w})">${o.f}</button>`).join('')}</div>`;
+}
+function rep(b,bon){
+  document.querySelectorAll('.opt').forEach(o=>o.disabled=true);
+  b.classList.add(bon?'ok':'ko');if(bon)Q.s++;
+  setTimeout(()=>{Q.i++;question();},900);
+}
+accueil();
+</script>
+</body>
+</html>

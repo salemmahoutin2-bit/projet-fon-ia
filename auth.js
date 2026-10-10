@@ -20,7 +20,9 @@ let modeRecuperation = false;
 async function verifierSession() {
     const { data: { session } } = await supabaseClient.auth.getSession();
     if (session && !modeRecuperation) {
-        afficherApp(session.user);
+        const recup = /type=recovery|access_token|[?&]code=/.test(location.hash + location.search);
+        if (location.hash === '#ia' || recup) afficherApp(session.user);
+        else location.replace('accueil.html');
     }
 }
 
@@ -103,7 +105,7 @@ async function handleLogin() {
         return;
     }
 
-    afficherApp(data.user);
+    location.href = 'accueil.html';
 }
 
 /* ─────────────────────────────────────────────
@@ -160,7 +162,7 @@ async function handleRegister() {
     }
 
     // Connexion réussie : afficher l'application directement
-    afficherApp(data.user);
+    location.href = 'accueil.html';
     btn.disabled = false;
     btn.textContent = 'Créer mon compte →';
 }
