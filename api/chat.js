@@ -26,7 +26,9 @@ export default async function handler(req, res) {
             generationConfig: {
                 maxOutputTokens: 1024,
                 temperature: 0.7,
-                topP: 0.9
+                topP: 0.9,
+                // Gemini 3 réfléchit beaucoup par défaut (niveau "high") : on le limite pour répondre vite
+                thinkingConfig: { thinkingLevel: "minimal" }
             }
         };
 
