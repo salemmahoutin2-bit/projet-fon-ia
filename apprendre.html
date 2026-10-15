@@ -35,6 +35,8 @@ button{font:inherit;cursor:pointer;border:none}
 .banque{display:flex;flex-wrap:wrap;gap:8px;justify-content:center}
 .chip{background:#fff;border:2px solid #e2e8f0;border-bottom-width:4px;border-radius:12px;padding:9px 14px;font-weight:700;color:#334155}.chip:hover{border-color:#38bdf8}
 .band{border-radius:16px;padding:16px;display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:6px}.band.ok{background:#dcfce7;color:#166534}.band.ko{background:#fee2e2;color:#991b1b}
+.lec{padding:12px 18px;border-radius:30px;background:#fff;border:2px solid #e2e8f0;border-bottom-width:4px;font-weight:700;color:#1d4ed8;margin:4px}
+.lec.fait{background:#dcfce7;border-color:#22c55e;color:#166534}.lec:disabled{opacity:.5;cursor:not-allowed}
 .note{font-size:.8rem;color:#94a3b8;margin-top:18px;text-align:center}
 </style>
 </head>
@@ -51,11 +53,32 @@ button{font:inherit;cursor:pointer;border:none}
    m = mot en Fon, f = français, alt = autres traductions acceptées (ex: alt:['Comment vas-tu ?']), audio = chemin d'un fichier (ex: 'audio/bonjour.mp3'), ok = true quand relu par un locuteur natif */
 const THEMES=[
  {id:'salut',nom:'Salutations',ico:'👋',mots:[
-  {m:'koudo zanzan',f:'Bonjour',ok:false},
-  {m:'édabô',f:'Au revoir',ok:false},
-  {m:'énantchè nouwé',f:'Merci',ok:false},
-  {m:'kuwabô',f:'Bienvenue',ok:false},
-  {m:'nin noulèdégbon',f:'Comment ça va ?',ok:false}]},
+  {m:'kudo',f:"Salut",ok:false},
+  {m:'kudo zanzan',f:"Bonjour (le matin)",ok:false},
+  {m:'kudo hwemɛ',f:"Bonjour (à midi)",ok:false},
+  {m:'kudo hwɛlɛkɔ',f:"Bon après-midi",ok:false},
+  {m:'kudo gbadanu',f:"Bonsoir",ok:false},
+  {m:'kudo lehwenu',f:"Bonjour (à toute heure)",ok:false},
+  {m:'a fɔn ganji à ?',f:"Tu t'es bien réveillé ?",ok:false},
+  {m:'un fɔn ganji',f:"Je me suis bien réveillé",ok:false},
+  {m:'nɛ a fɔn gbɔn ?',f:"Comment tu t'es réveillé ?",ok:false},
+  {m:'nɛ a de gbɔn ?',f:"Comment te portes-tu ?",ok:false},
+  {m:'un do ganji',f:"Je me porte bien",ok:false},
+  {m:'a do fine a ?',f:"Tu es là ?",ok:false},
+  {m:'un do fi',f:"Je suis là",ok:false},
+  {m:'kudo azɔ',f:"Bon travail",ok:false},
+  {m:'kudo ayijijɔn',f:"Bonne assise",ok:false},
+  {m:'awanu',f:"Merci",ok:false},
+  {m:'kenklɛn',f:"S'il vous plaît",ok:false},
+  {m:'kwabɔ',f:"Bienvenue (à une personne)",ok:false},
+  {m:'mi kwabɔ',f:"Bienvenue (à plusieurs personnes)",ok:false},
+  {m:'edabɔ',f:"Au revoir",ok:false},
+  {m:'e yi hwɛdevɔnu',f:"À la prochaine fois",ok:false},
+  {m:'e yi sɔ',f:"À demain",ok:false},
+  {m:'ma yi bo wa',f:"À tout à l'heure",ok:false},
+  {m:'dɔ gbe',f:"Bonne nuit",ok:false},
+  {m:'kudo xwe',f:"Bonne fête",ok:false},
+  {m:'kudo ta nyinyɔ',f:"Bonne chance, félicitations",ok:false}]},
  {id:'nombres',nom:'Les nombres',ico:'🔢',mots:[]},
  {id:'marche',nom:'Au marché',ico:'🧺',mots:[]},
  {id:'famille',nom:'La famille',ico:'👨‍👩‍👧',mots:[]}
@@ -66,7 +89,7 @@ if(!Object.keys(localStorage).some(k=>/^sb-.*-auth-token$/.test(k)))location.rep
 const tous=THEMES.flatMap(t=>t.mots);
 function lire(src){if(src)new Audio(src).play().catch(()=>{});}
 function accueil(){
-  let h='';
+  let h='';const pr0=prog();if(pr0.xp||pr0.streak)h+=`<p class="fr" style="margin-bottom:12px">🔥 ${pr0.streak} jour(s) · ⭐ ${pr0.xp} XP</p>`;
   if(tous.length){const j=Math.floor(Date.now()/864e5),w=tous[j%tous.length];
     h+=`<div class="card mj"><small>Mot du jour</small><div class="gros">${w.m}</div><div class="fr">${w.f}</div>${w.audio?`<button class="btn" style="margin-top:10px" onclick="lire('${w.audio}')">🔊 Écouter</button>`:''}</div>`;}
   h+='<div class="themes">'+THEMES.map(t=>`<button class="theme" onclick="theme('${t.id}')"><div style="font-size:1.8rem">${t.ico}</div><b>${t.nom}</b><span>${t.mots.length?t.mots.length+' mots':'Bientôt'}</span></button>`).join('')+'</div>';
@@ -74,7 +97,7 @@ function accueil(){
 }
 function theme(id){
   const t=THEMES.find(x=>x.id===id);
-  vue.innerHTML=`<div class="card"><h2>${t.ico} ${t.nom}</h2>`+(t.mots.length?t.mots.map(w=>`<div class="mot"><div><div class="f">${w.m}${w.ok?'':'<span class="tag">à valider</span>'}</div><div class="fr">${w.f}</div></div>${w.audio?`<button class="btn sec" onclick="lire('${w.audio}')">🔊</button>`:''}</div>`).join(''):'<p class="fr" style="margin-top:10px">Les mots de ce thème arrivent bientôt.</p>')
+  vue.innerHTML=chemin(t)+`<div class="card"><h2>${t.ico} ${t.nom}</h2>`+(t.mots.length?t.mots.map(w=>`<div class="mot"><div><div class="f">${w.m}${w.ok?'':'<span class="tag">à valider</span>'}</div><div class="fr">${w.f}</div></div>${w.audio?`<button class="btn sec" onclick="lire('${w.audio}')">🔊</button>`:''}</div>`).join(''):'<p class="fr" style="margin-top:10px">Les mots de ce thème arrivent bientôt.</p>')
    +`</div><button class="btn sec" onclick="accueil()">← Thèmes</button> `+(t.mots.length?`<button class="btn sec" onclick="quiz('${id}')">Faire le quiz</button> <button class="btn" onclick="phrases('${id}')">Construire la phrase</button>`:'');
 }
 let Q;
@@ -102,7 +125,7 @@ function phrases(id){
   exo();
 }
 function exo(){
-  if(!P.f.length){vue.innerHTML=`<div class="card"><h2>Terminé ! ${P.n-P.rate.size} / ${P.n} du premier coup</h2><p class="fr">${P.rate.size?'Les phrases ratées sont revenues jusqu\'à ce que tu les réussisses.':'Parfait ! 🎉'}</p></div><button class="btn sec" onclick="theme('${P.t.id}')">Revoir la leçon</button> <button class="btn" onclick="phrases('${P.t.id}')">Recommencer</button>`;return;}
+  if(!P.f.length){if(P.fin)return P.fin();vue.innerHTML=`<div class="card"><h2>Terminé ! ${P.n-P.rate.size} / ${P.n} du premier coup</h2><p class="fr">${P.rate.size?'Les phrases ratées sont revenues jusqu\'à ce que tu les réussisses.':'Parfait ! 🎉'}</p></div><button class="btn sec" onclick="theme('${P.t.id}')">Revoir la leçon</button> <button class="btn" onclick="phrases('${P.t.id}')">Recommencer</button>`;return;}
   const w=P.f[0],bonne=w.f.split(' '),nb=bonne.map(norm);
   const pool=[...new Set(tous.filter(x=>x!==w).flatMap(x=>x.f.split(' ')))].filter(k=>norm(k)&&!nb.includes(norm(k)));
   P.bank=[...bonne,...pool.sort(()=>Math.random()-.5).slice(0,3)].sort(()=>Math.random()-.5);
@@ -122,6 +145,52 @@ function verif(){
   P.etat=bons.includes(rep)?'ok':'ko';if(P.etat==='ko')P.rate.add(P.w);dessiner();
 }
 function suite(){const w=P.f.shift();if(P.etat==='ko')P.f.push(w);exo();}
+/* ===== PARCOURS FAÇON DUOLINGO : leçons de 3 mots, XP, série de jours ===== */
+function uid(){const k=Object.keys(localStorage).find(k=>/^sb-.*-auth-token$/.test(k));try{return JSON.parse(localStorage.getItem(k)).user.id}catch(e){return 'invite'}}
+function prog(){try{return Object.assign({done:{},xp:0,streak:0,last:''},JSON.parse(localStorage.getItem('fonprog_'+uid())))}catch(e){return {done:{},xp:0,streak:0,last:''}}}
+function sauve(p){localStorage.setItem('fonprog_'+uid(),JSON.stringify(p));}
+const mel=a=>a.sort(()=>Math.random()-.5);
+function chemin(t){
+  if(!t.mots.length)return '';
+  const pr=prog(),n=Math.ceil(t.mots.length/3);
+  return `<div class="card"><h2>Parcours</h2><p class="fr" style="margin-bottom:10px">Chaque leçon : 3 nouveaux mots, puis des exercices. Termine-la pour débloquer la suivante.</p>${Array.from({length:n},(_,i)=>{const d=pr.done[t.id+i],ok=i===0||pr.done[t.id+(i-1)];return `<button class="lec ${d?'fait':''}" ${ok?'':'disabled'} onclick="lecon('${t.id}',${i})">${d?'✓':ok?'▶':'🔒'} Leçon ${i+1}</button>`}).join('')}</div>`;
+}
+let L;
+function lecon(id,i){
+  const t=THEMES.find(x=>x.id===id),chunk=t.mots.slice(3*i,3*i+3),rev=mel(t.mots.slice(0,3*i)).slice(0,2);
+  L={id,i,t,chunk,k:0,xp:0,q:mel([...chunk.flatMap(w=>[{w,s:'fr'},{w,s:'fon'}]),...rev.map(w=>({w,s:'fr'}))])};
+  L.n=L.q.length;pres();
+}
+function pres(){
+  if(L.k>=L.chunk.length)return qcm();
+  const w=L.chunk[L.k];
+  vue.innerHTML=`<div class="barre"><i style="width:${L.k/L.chunk.length*33}%"></i></div><div class="card"><small class="fr">Nouveau mot ${L.k+1} / ${L.chunk.length}</small><div class="gros">${w.m}${w.ok?'':'<span class="tag">à valider</span>'}</div><div class="fr">${w.f}</div>${w.audio?`<button class="btn sec" style="margin-top:10px" onclick="lire('${w.audio}')">🔊 Écouter</button>`:''}</div><button class="btn" style="width:100%" onclick="L.k++;pres()">Continuer</button>`;
+}
+function qcm(){
+  if(!L.q.length)return construire();
+  const {w,s}=L.q[0],cle=s==='fr'?'f':'m',bonne=w[cle];
+  const opts=mel([bonne,...mel([...new Set(tous.filter(x=>x[cle]!==bonne).map(x=>x[cle]))]).slice(0,3)]);
+  vue.innerHTML=`<div class="barre"><i style="width:${33+(L.n-L.q.length)/L.n*33}%"></i></div><div class="card"><small class="fr">${s==='fr'?'Que veut dire ce mot ?':'Comment dit-on en Fon ?'}</small><div class="gros">${s==='fr'?w.m:w.f}</div>${opts.map(o=>`<button class="opt" onclick="repL(this,${o===bonne})">${o}</button>`).join('')}</div><div id="bd"></div>`;
+}
+function repL(b,bon){
+  const it=L.q[0],sol=it.s==='fr'?it.w.f:it.w.m;
+  document.querySelectorAll('.opt').forEach(o=>o.disabled=true);
+  b.classList.add(bon?'ok':'ko');
+  if(bon){if(!it.fail)L.xp+=10;}else it.fail=true;
+  document.getElementById('bd').innerHTML=bon?`<div class="band ok"><b>Excellent ! 🎉</b><button class="btn" onclick="sq(true)">Continuer</button></div>`:`<div class="band ko"><div><b>Solution :</b> ${sol}</div><button class="btn" onclick="sq(false)">Continuer</button></div>`;
+}
+function sq(bon){const it=L.q.shift();if(!bon)L.q.push(it);qcm();}
+function construire(){
+  P={t:L.t,f:mel([...L.chunk]),n:L.chunk.length,rate:new Set(),sel:[],bank:[],etat:'cours',w:null,fin:fini};exo();
+}
+function fini(){
+  const xp=L.xp+(P.n-P.rate.size)*10,pr=prog(),j=new Date().toISOString().slice(0,10),h=new Date(Date.now()-864e5).toISOString().slice(0,10);
+  pr.done[L.id+L.i]=1;pr.xp+=xp;
+  if(pr.last!==j){pr.streak=pr.last===h?pr.streak+1:1;pr.last=j;}
+  sauve(pr);
+  const suiv=L.i+1<Math.ceil(L.t.mots.length/3);
+  vue.innerHTML=`<div class="card" style="text-align:center"><div style="font-size:3rem">🎉</div><h2>Leçon terminée !</h2><p class="gros">+${xp} XP</p><p class="fr">🔥 ${pr.streak} jour${pr.streak>1?'s':''} d'affilée</p></div><button class="btn sec" onclick="theme('${L.id}')">Retour au parcours</button> ${suiv?`<button class="btn" onclick="lecon('${L.id}',${L.i+1})">Leçon suivante</button>`:''}`;
+}
 accueil();
 </script>
 </body>
